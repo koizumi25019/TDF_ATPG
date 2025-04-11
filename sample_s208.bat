@@ -1,0 +1,1 @@
+TDF_ATPG.exe -net ./input/circuit/s208.v -fault ./input/fault/s208_rep.txt -untest_mode ON -power ON -rand ON -target_limit 100 -time 120 -folder ./output/

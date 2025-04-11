@@ -1,0 +1,1 @@
+TDF_ATPG.exe -net ./input/circuit/s1423.v -fault ./input/fault/s1423_rep.txt -untest_mode ON -power ON -rand ON -target_limit 100 -time 120 -folder ./s1423_output/

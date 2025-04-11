@@ -1,0 +1,20 @@
+//---------------------------------------------------
+//	    Transition Fault ATPG   Information
+//---------------------------------------------------
+// Target Circuit              :./input/circuit/s1423.v
+// Fault Type                  :NODE
+// Test Generation             :MTTG
+// Number of Total Faults      :2512
+// Number of Untestable Faults :580
+// Number of High Power Faults :0
+// Number of Detected Faults   :1932
+// Number of Undetected Faults :0
+// Number of Test Vectors      :91
+// Rate of Detected Faults     :76.91%
+// Elapsed time                :10322.61sec
+// Time to abort solver        :120sec
+// Target faults limit         :100
+// Rand Optiont                :ON
+// Low Power Mode              :ON
+// WSA                         :20[Åì]
+//---------------------------------------------------

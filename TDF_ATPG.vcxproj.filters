@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\Main">
+      <UniqueIdentifier>{73c64964-0ca4-498e-a189-586ca945f224}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else">
+      <UniqueIdentifier>{62cc4018-8b61-449b-831a-6083be88af2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\MTTG">
+      <UniqueIdentifier>{e48a54a6-ace7-4cef-9f87-c78ada4afbdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else\Levelize">
+      <UniqueIdentifier>{2986192a-9a28-4ce9-ba5f-ff7520b9efb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else\Netlist">
+      <UniqueIdentifier>{e84aa26c-9d69-4d81-9d65-6ab6d63e33ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else\Exturn">
+      <UniqueIdentifier>{c89d61b0-8586-4fad-a665-6590c8c2bbe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\MTTG\Untest_delete">
+      <UniqueIdentifier>{809ba83d-dfbd-4141-b1e2-b93189eb46e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else\OUTPUT">
+      <UniqueIdentifier>{0d900689-3720-4514-9c38-c5ba4b4babff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\MTTG\MiniPBO">
+      <UniqueIdentifier>{e8948cbc-2e81-4a9d-9e85-1e92d18376d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else\Logic">
+      <UniqueIdentifier>{7f187a96-7c3f-4b44-9cf3-4b7bb2b0bd59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else\Logic\Gate">
+      <UniqueIdentifier>{0e60ebd7-d38b-4fd9-91c7-9c70013d660b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Else\Fsim">
+      <UniqueIdentifier>{335f12c5-27c0-4c0f-b273-14822dd5d151}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Else\Exturn\init_exturn.c">
+      <Filter>ソース ファイル\Else\Exturn</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Fsim\fault_judge.c">
+      <Filter>ソース ファイル\Else\Fsim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Levelize\Level_stack.c">
+      <Filter>ソース ファイル\Else\Levelize</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Levelize\levelize.c">
+      <Filter>ソース ファイル\Else\Levelize</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Levelize\Qsort.c">
+      <Filter>ソース ファイル\Else\Levelize</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Levelize\set_literal_id.c">
+      <Filter>ソース ファイル\Else\Levelize</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\Gate\and.c">
+      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\Gate\fout.c">
+      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\Gate\inv.c">
+      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\Gate\nand.c">
+      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\Gate\nor.c">
+      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\Gate\or.c">
+      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\logic_sim.c">
+      <Filter>ソース ファイル\Else\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\logic_sim_1time.c">
+      <Filter>ソース ファイル\Else\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\logic_sim_2time.c">
+      <Filter>ソース ファイル\Else\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\ppo_ppi_cat.c">
+      <Filter>ソース ファイル\Else\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Logic\test_v_read.c">
+      <Filter>ソース ファイル\Else\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Netlist\make_ppo_ppi.c">
+      <Filter>ソース ファイル\Else\Netlist</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Netlist\Netlist.c">
+      <Filter>ソース ファイル\Else\Netlist</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\OUTPUT\file_output.c">
+      <Filter>ソース ファイル\Else\OUTPUT</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\OUTPUT\make_test_set.c">
+      <Filter>ソース ファイル\Else\OUTPUT</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\OUTPUT\pin_make.c">
+      <Filter>ソース ファイル\Else\OUTPUT</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\OUTPUT\standard_output.c">
+      <Filter>ソース ファイル\Else\OUTPUT</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\cmdline.c">
+      <Filter>ソース ファイル\Else</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\Que.c">
+      <Filter>ソース ファイル\Else</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\reset_flag.c">
+      <Filter>ソース ファイル\Else</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Else\transition_delay_fault_set.c">
+      <Filter>ソース ファイル\Else</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main\check_open_pass.c">
+      <Filter>ソース ファイル\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main\main.c">
+      <Filter>ソース ファイル\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Main\open_stack.c">
+      <Filter>ソース ファイル\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\MiniPBO\fault_select.c">
+      <Filter>ソース ファイル\MTTG\MiniPBO</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\MiniPBO\mini_calc_pbo_size.c">
+      <Filter>ソース ファイル\MTTG\MiniPBO</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\MiniPBO\mini_pbo_generate.c">
+      <Filter>ソース ファイル\MTTG\MiniPBO</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\Untest_delete\untest_calc_pbo_size.c">
+      <Filter>ソース ファイル\MTTG\Untest_delete</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\Untest_delete\untest_check_wsa.c">
+      <Filter>ソース ファイル\MTTG\Untest_delete</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\Untest_delete\untest_delete_main.c">
+      <Filter>ソース ファイル\MTTG\Untest_delete</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\Untest_delete\untest_pbo_generate.c">
+      <Filter>ソース ファイル\MTTG\Untest_delete</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\mttg_calc_pbo_size.c">
+      <Filter>ソース ファイル\MTTG</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\mttg_check_wsa.c">
+      <Filter>ソース ファイル\MTTG</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\mttg_main.c">
+      <Filter>ソース ファイル\MTTG</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\mttg_pbo_generate.c">
+      <Filter>ソース ファイル\MTTG</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\specific_fault_range.c">
+      <Filter>ソース ファイル\MTTG</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\undet_fault_delete.c">
+      <Filter>ソース ファイル\MTTG</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MTTG\unsat_dicision.c">
+      <Filter>ソース ファイル\MTTG</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Header\Command_Info.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Header\Define.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Header\Fault.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Header\Netlist.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Header\Stack.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
