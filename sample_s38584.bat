@@ -1,1 +1,1 @@
-TDF_ATPG.exe -net ./input/circuit/s38584.v -fault ./input/fault/s38584_rep.txt -untest_mode ON -power ON -rand ON -target_limit 1 -time 60 -folder ./s38584_output/
+TDF_ATPG.exe -net ./input/circuit/s38584.v -fault ./input/fault/s38584_rep.txt -untest_mode ON -power ON -rand ON -target_limit 1 -time 120 -folder ./s38584_output/

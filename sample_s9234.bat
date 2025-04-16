@@ -1,0 +1,1 @@
+TDF_ATPG.exe -net ./input/circuit/s9234.v -fault ./input/fault/s9234_rep.txt -untest_mode ON -power ON -rand ON -target_limit 1 -time 120 -folder ./s9234_output/

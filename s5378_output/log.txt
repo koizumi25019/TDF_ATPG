@@ -1,0 +1,20 @@
+//---------------------------------------------------
+//	    Transition Fault ATPG   Information
+//---------------------------------------------------
+// Target Circuit              :./input/circuit/s5378.v
+// Fault Type                  :NODE
+// Test Generation             :STTG
+// Number of Total Faults      :4315
+// Number of Untestable Faults :0
+// Number of High Power Faults :0
+// Number of Detected Faults   :4315
+// Number of Undetected Faults :0
+// Number of Test Vectors      :542
+// Rate of Detected Faults     :100.00%
+// Elapsed time                :7362.86sec
+// Time to abort solver        :120sec
+// Target faults limit         :1
+// Rand Optiont                :ON
+// Low Power Mode              :ON
+// WSA                         :20[Åì]
+//---------------------------------------------------

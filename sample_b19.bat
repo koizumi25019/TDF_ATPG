@@ -1,0 +1,1 @@
+TDF_ATPG.exe -net ./input/circuit/b19.v -untest_mode ON -power ON -rand ON -target_limit 1 -time 300 -folder ./b19_output/

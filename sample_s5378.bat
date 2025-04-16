@@ -1,0 +1,1 @@
+TDF_ATPG.exe -net ./input/circuit/s5378.v -fault ./input/fault/s5378_rep.txt -untest_mode ON -power ON -rand ON -target_limit 1 -time 120 -folder ./s5378_output/

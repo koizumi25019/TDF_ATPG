@@ -1,0 +1,1 @@
+TDF_ATPG.exe -net ./input/circuit/s13207.v -fault ./input/fault/s13207_rep.txt -untest_mode ON -power ON -rand ON -target_limit 1 -time 300 -folder ./s13207_output/
