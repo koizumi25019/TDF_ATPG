@@ -1,4 +1,4 @@
-c clasp version 3.3.4
+c clasp version 3.3.8
 c Reading from ./s5378_output/untest_pbo.txt
 c Solving...
 o 0
@@ -1426,5 +1426,5 @@ c Models         : 1
 c   Optimum      : yes
 c Optimization   : 0
 c Calls          : 1
-c Time           : 0.353s (Solving: 0.32s 1st Model: 0.32s Unsat: 0.00s)
+c Time           : 0.347s (Solving: 0.31s 1st Model: 0.31s Unsat: 0.00s)
 c CPU Time       : 0.344s
