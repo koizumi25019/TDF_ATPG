@@ -1,0 +1,4 @@
+1: tfl_num:38	tfl_det_fault:19	det_fault:19
+2: tfl_num:19	tfl_det_fault:3	det_fault:3
+3: tfl_num:16	tfl_det_fault:13	det_fault:13
+4: tfl_num:3	tfl_det_fault:3	det_fault:3

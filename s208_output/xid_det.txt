@@ -1,0 +1,11 @@
+II135_2	stf	1
+II5	str	1
+II104	str	1
+II6	stf	1
+Y_1	str	1
+II44	stf	1
+II100	stf	1
+II104_II6_A	str	1
+Y_1_II44_A	str	1
+Y_1_II100_A	str	1
+II100_II135_2_B	stf	1

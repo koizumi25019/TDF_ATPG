@@ -1,0 +1,20 @@
+//---------------------------------------------------
+//	    Transition Fault ATPG   Information
+//---------------------------------------------------
+// Target Circuit              :./input/circuit/s38417.v
+// Fault Type                  :NODE
+// Test Generation             :STTG
+// Number of Total Faults      :49738
+// Number of Untestable Faults :1664
+// Number of High Power Faults :0
+// Number of Detected Faults   :48074
+// Number of Undetected Faults :0
+// Number of Test Vectors      :6299
+// Rate of Detected Faults     :96.65%
+// Elapsed time                :88389.86sec
+// Time to abort solver        :120sec
+// Target faults limit         :1
+// Rand Optiont                :ON
+// Low Power Mode              :ON
+// WSA                         :20[Åì]
+//---------------------------------------------------

@@ -142,7 +142,7 @@ int mttg_main(void) {
 		//	clasp ⇒ テストベクトル生成
 		//========================================================================
 		//Clasp
-		sprintf(cmd, "clasp.exe %smttg_pbo.txt --time-limit %d >%sclasp_log_mttg.txt",folder_out, fi[TIME].value,folder_out);
+		sprintf(cmd, "clasp.exe  %smttg_pbo.txt --parallel-mode 24 >%sclasp_log_mttg.txt",folder_out,folder_out);
 		system(cmd);
 		//テストベクトル生成
 		sprintf(cmd, "generate_tv.exe %sclasp_log_mttg.txt %d",folder_out, n_pi + n_dff);

@@ -1,0 +1,20 @@
+//---------------------------------------------------
+//	    Transition Fault ATPG   Information
+//---------------------------------------------------
+// Target Circuit              :./input/circuit/s208.v
+// Fault Type                  :NODE
+// Test Generation             :MTTG
+// Number of Total Faults      :346
+// Number of Untestable Faults :240
+// Number of High Power Faults :68
+// Number of Detected Faults   :38
+// Number of Undetected Faults :0
+// Number of Test Vectors      :4
+// Rate of Detected Faults     :10.98%
+// Elapsed time                :33.81sec
+// Time to abort solver        :120sec
+// Target faults limit         :100
+// Rand Optiont                :ON
+// Low Power Mode              :ON
+// WSA                         :20[Åì]
+//---------------------------------------------------
