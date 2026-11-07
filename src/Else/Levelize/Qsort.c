@@ -43,6 +43,6 @@ void Qsort(void) {
 //  –ß‚è’l : “ü‚ê‘Ö‚¦‚½’†g
 //  ˆø  ” : ‚Q‚Â‚Ì—v‘f
 //=========================================================================
-int compare_int(void *a, void *b) {
-	return (*(NLIST**)a)->level - (*(NLIST**)b)->level;
+int compare_int(const void *a, const void *b) {
+	return (*(NLIST* const*)a)->level - (*(NLIST* const*)b)->level;
 }

@@ -5,6 +5,7 @@
 #include <time.h>
 #include<stdlib.h>
 #include<string.h>
+#include<limits.h>
 
 //------------------------------------------------------------------------
 //Ž©ìƒCƒ“ƒNƒ‹[ƒh
@@ -21,8 +22,15 @@ void level_push(NLIST* p) {
 	int	i;
 
 	if (Level.ptr >= Level.max_num) {
-		printf("stack overflow(Level_stack.c)\n");
-		exit(1);
+		//—e—Ê‚ª‘«‚è‚È‚¯‚ê‚Î2”{‚ÉŠg’£‚·‚é(ŒÅ’è’·‚¾‚Æ‰ñ˜H‚É‚æ‚Á‚Ä‚Íˆì‚ê‚é‚½‚ß)
+		int new_max = (Level.max_num > 0) ? Level.max_num * 2 : 1024;
+		NLIST** new_stk;
+		if (Level.max_num > INT_MAX / 2 || (new_stk = (NLIST**)realloc(Level.stk, sizeof(NLIST*) * new_max)) == NULL) {
+			printf("stack overflow(Level_stack.c)\n");
+			exit(1);
+		}
+		Level.stk = new_stk;
+		Level.max_num = new_max;
 	}
 	i = Level.ptr;
 	Level.stk[i] = p;

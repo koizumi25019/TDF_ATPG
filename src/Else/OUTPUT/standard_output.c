@@ -12,36 +12,46 @@
 #include"../../Header/Define.h"
 
 //===================================================
+//関数名:print_info
+//機能:実行情報の出力(標準出力・ログファイル 共通)
+//戻り値：なし
+//引数：出力先(stdout またはログファイル)
+//===================================================
+void print_info(FILE* fp) {
+
+	fprintf(fp, "//---------------------------------------------------\n");
+	fprintf(fp, "//	    Transition Fault ATPG   Information\n");
+	fprintf(fp, "//---------------------------------------------------\n");
+	fprintf(fp, "// Target Circuit              :%s\n", fi[CIRCUIT].name);
+	fprintf(fp, "// Fault Type                  :NODE\n");
+	if (fi[TARGET_LIMIT].value == 1) {
+		fprintf(fp, "// Test Generation             :STTG\n");
+	}
+	else {
+		fprintf(fp, "// Test Generation             :MTTG\n");
+	}
+	fprintf(fp, "// Number of Total Faults      :%d\n", (int)all_num);
+	fprintf(fp, "// Number of Untestable Faults :%d\n", (int)red_num);
+	fprintf(fp, "// Number of High Power Faults :%d\n", (int)hpfl_num);
+	fprintf(fp, "// Number of Detected Faults   :%d\n", (int)dfl_num);
+	fprintf(fp, "// Number of Undetected Faults :%d\n", (int)ufl_num);
+	fprintf(fp, "// Number of Test Vectors      :%d\n", tp_num);
+	fprintf(fp, "// Rate of Detected Faults     :%.2lf%%\n", (((double)dfl_num) / ((double)all_num))*100.0);
+	fprintf(fp, "// Elapsed time                :%.2lfsec\n", (double)clock() / CLOCKS_PER_SEC);
+	fprintf(fp, "// Time to abort solver        :%dsec\n", fi[TIME].value);
+	fprintf(fp, "// Target faults limit         :%d\n", fi[TARGET_LIMIT].value);
+	fprintf(fp, "// Rand Optiont                :%s\n", fi[RAND].name);
+	fprintf(fp, "// Low Power Mode              :%s\n", fi[LOW_POWER].name);
+	fprintf(fp, "// WSA                         :%d[％]\n", fi[WSATH].value);
+	fprintf(fp, "//---------------------------------------------------\n");
+}
+
+//===================================================
 //関数名:standard_output
 //機能:標準出力
 //戻り値：なし
 //引数：なし
 //===================================================
 void standard_output(void) {
-
-	printf("//---------------------------------------------------\n");
-	printf("//	   Transition Fault ATPG   Information\n");
-	printf("//---------------------------------------------------\n");
-	printf("// Target Circuit              :%s\n", fi[CIRCUIT].name);
-	printf("// Fault Type                  :NODE\n");
-	if (fi[TARGET_LIMIT].value == 1) {
-		printf("// Test Generation             :STTG\n");
-	}
-	else {
-		printf("// Test Generation             :MTTG\n");
-	}
-	printf("// Number of Total Faults      :%d\n", (int)all_num);
-	printf("// Number of Untestable Faults :%d\n", (int)red_num);
-	printf("// Number of High Power Faults :%d\n", (int)hpfl_num);
-	printf("// Number of Detected Faults   :%d\n", (int)dfl_num);
-	printf("// Number of Undetected Faults :%d\n", (int)ufl_num);
-	printf("// Number of Test Vectors      :%d\n", tp_num);
-	printf("// Rate of Detected Faults     :%.2lf%%\n",(((double)dfl_num)/ ((double)all_num))*100.0);
-	printf("// Elapsed time                :%.2lfsec\n", (double)clock() / CLOCKS_PER_SEC);
-	printf("// Time to abort solver        :%dsec\n", fi[TIME].value);
-	printf("// Target faults limit         :%d\n", fi[TARGET_LIMIT].value);
-	printf("// Rand Optiont                :%s\n", fi[RAND].name);
-	printf("// Low Power Mode              :%s\n", fi[LOW_POWER].name);
-	printf("// WSA                         :%d[％]\n", fi[WSATH].value);
-	printf("//---------------------------------------------------\n");
+	print_info(stdout);
 }

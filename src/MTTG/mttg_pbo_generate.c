@@ -56,20 +56,20 @@ void mttg_pbo_generate_min(FILE* fp) {
 }
 
 //=========================================================================
-//  関数名 : pbo_generate_fdetect_c_mttg
-//  機  能 : 故障検出回路記述(MTTG限定)
+//  関数名 : pbo_generate_fdetect_circuit
+//  機  能 : 故障検出回路記述(正常回路と故障回路のPPOをEXORで比較し、複数ならORでまとめる)
+//           検出回路の出力の変数番号などは node->tfl_* に保存する(MTTG・テスト不能故障削除 共通)
 //  戻り値 : なし
 //  引  数 : ファイルポインタ，対象故障
 //=========================================================================
-void pbo_generate_fdetect_c_mttg(FILE *fp, UNDET_FAULT_LIST* node) {
+void pbo_generate_fdetect_circuit(FILE *fp, UNDET_FAULT_LIST* node) {
 
 	int i, j/*, k*/;
 	unsigned int *fdetct_in;
 
-	if ((fdetct_in = (unsigned int*)calloc(fc_ppo, sizeof(unsigned int))) == NULL) {
-		printf("【ERROR】:No calloc Fault Det Circuit(sttg_pbo_generate.c)\n"); //故障検出回路の入力配列領域確保失敗
-		//exit(1);
-		abort();
+	if ((fdetct_in = (unsigned int*)calloc(fc_ppo > 0 ? fc_ppo : 1, sizeof(unsigned int))) == NULL) {
+		printf("【ERROR】:No calloc Fault Det Circuit(mttg_pbo_generate.c)\n"); //故障検出回路の入力配列領域確保失敗
+		exit(1);
 	}
 
 	node->tfl_fc_ppo = fc_ppo;
@@ -100,6 +100,8 @@ void pbo_generate_fdetect_c_mttg(FILE *fp, UNDET_FAULT_LIST* node) {
 		node->tfl_det_suffix = suffix;
 		suffix++;
 	}
+
+	free(fdetct_in);
 }
 
 //=========================================================================
@@ -149,41 +151,5 @@ void pbo_generate_fault_ex(FILE *fp, UNDET_FAULT_LIST* node,int mode) {
 		}
 		suffix++;
 	}
-
-}
-
-
-//=========================================================================
-//  関数名 : pbo_generate_power_mttg
-//  機  能 : 消費電力制約(MTTG)(ソフト)
-//  戻り値 : なし
-//  引  数 : ファイルポインタ
-//=========================================================================
-void pbo_generate_power_mttg(FILE *fp) {
-	int i;
-	char* cons1 = (char*)NULL;
-
-	if ((cons1 = (char*)calloc(500000, sizeof(char))) == NULL) {
-		printf("【ERROR】:No calloc cons1(mttg_pbo_generate.c)\n");
-		exit(1);
-	}
-
-	//信号線遷移制約
-	for (i = 0; i < n_net; i++) {
-		if (nl[i].open_pass == NO) {
-
-			fprintf(fp, "1 x%d +1 x%d x%d +1 ~x%d ~x%d >=1;\n", suffix, nl[i].suf_1t, nl[i].suf_2t, nl[i].suf_1t, nl[i].suf_2t);
-			
-			//WSA制約
-			sprintf(cons1,"%s-1 x%d ", cons1, suffix);
-			suffix++;
-		}
-	}
-
-	//WSA制約(WSA閾値)
-	sprintf(cons1,  "%s>=-%d;\n",cons1,n_net *  fi[WSATH].value / 100);
-	suffix++;
-
-	fprintf(fp, "%s", cons1);
 
 }

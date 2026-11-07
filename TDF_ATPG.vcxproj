@@ -169,12 +169,11 @@
     <ClCompile Include="src\Else\Que.c" />
     <ClCompile Include="src\Else\reset_flag.c" />
     <ClCompile Include="src\Else\transition_delay_fault_set.c" />
+    <ClCompile Include="src\Main\globals.c" />
     <ClCompile Include="src\Main\check_open_pass.c" />
     <ClCompile Include="src\Main\main.c" />
     <ClCompile Include="src\Main\open_stack.c" />
     <ClCompile Include="src\MTTG\MiniPBO\fault_select.c" />
-    <ClCompile Include="src\MTTG\MiniPBO\mini_calc_pbo_size.c" />
-    <ClCompile Include="src\MTTG\MiniPBO\mini_pbo_generate.c" />
     <ClCompile Include="src\MTTG\mttg_calc_pbo_size.c" />
     <ClCompile Include="src\MTTG\mttg_check_wsa.c" />
     <ClCompile Include="src\MTTG\mttg_main.c" />

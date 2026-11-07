@@ -1,5 +1,17 @@
 #pragma once
 
+//------------------------------------------------------------------------
+// グローバル変数の「定義」と「宣言」の切り替え
+// Main/globals.c だけが DEFINE_GLOBALS を定義してから本ヘッダを読み込み、
+// 変数の実体を作る。それ以外のファイルでは extern 宣言になる。
+// (ヘッダ内で変数の実体を定義すると、.c ファイルの数だけ多重定義になるため)
+//------------------------------------------------------------------------
+#ifdef DEFINE_GLOBALS
+#define GLOBAL
+#else
+#define GLOBAL extern
+#endif
+
 #include"Command_Info.h"
 #include"Stack.h"
 #include<time.h>
@@ -42,12 +54,6 @@
 #define     FOLDER          8
 
 //------------------------------------------------------------------------
-//all0 all1
-//------------------------------------------------------------------------
-#define		all1		4294967295	//論理値1のときの値
-#define		all0		0			//論理値0のときの値
-
-//------------------------------------------------------------------------
 //故障のタイプ
 //------------------------------------------------------------------------
 #define		STF		    0		   //STF(1->0)
@@ -56,63 +62,59 @@
 //------------------------------------------------------------------------
 //ソートテーブル
 //------------------------------------------------------------------------
-NLIST** sort_nl;
-STACK Level;			//レベライズ用のスタック
+GLOBAL NLIST** sort_nl;
+GLOBAL STACK Level;			//レベライズ用のスタック
 
 //------------------------------------------------------------------------
 //出力ファイル
 //------------------------------------------------------------------------
-FILE* fout_tp;			//テストパターン集合ファイル
-FILE* fout_fault;		//故障集合ファイル
-FILE* fout_pin_input;	//入力ピンファイル
-FILE* fout_pin;			//入力ピンファイル(故障シミュレーション)
-FILE* fout_log;			//ログファイル
-FILE* fout_undet;		//最終未検出故障ファイル(空ファイル)
-FILE* fout_det;			//最終検出故障ファイル(＝初期未検出故障集合ファイル)
+GLOBAL FILE* fout_tp;			//テストパターン集合ファイル
+GLOBAL FILE* fout_fault;		//故障集合ファイル
+GLOBAL FILE* fout_pin_input;	//入力ピンファイル
+GLOBAL FILE* fout_pin;			//入力ピンファイル(故障シミュレーション)
+GLOBAL FILE* fout_log;			//ログファイル
+GLOBAL FILE* fout_undet;		//最終未検出故障ファイル(空ファイル)
+GLOBAL FILE* fout_det;			//最終検出故障ファイル(＝初期未検出故障集合ファイル)
 
-FILE* fout_untest_tp;		//テスト不能故障削除時のテストパターン集合ファイル
-FILE* fout_untest_fault;	//テスト不能故障集合ファイル
-FILE* fout_high_fault;		//高消費電力故障集合ファイル
-FILE* fout_init_undet;		//初期未検出集合ファイル
-FILE* fout_untest_pbo;		//テスト不能故障削除用のSTTGのPBOファイル
-FILE* fout_literal;			//テスト不能削除前のリテラル情報
+GLOBAL FILE* fout_untest_tp;		//テスト不能故障削除時のテストパターン集合ファイル
+GLOBAL FILE* fout_untest_fault;		//テスト不能故障集合ファイル
+GLOBAL FILE* fout_high_fault;		//高消費電力故障集合ファイル
+GLOBAL FILE* fout_init_undet;		//初期未検出集合ファイル
+GLOBAL FILE* fout_untest_pbo;		//テスト不能故障削除用のSTTGのPBOファイル
+GLOBAL FILE* fout_literal;			//テスト不能削除前のリテラル情報
 
-FILE* fout_mttg_pbo;		//MTTGのPBOファイル
-FILE* fout_mini_pbo;		//目標故障選択時のminiPBO
-FILE* fout_mini_pbo_copy;	//目標故障選択時の1つ前のファイル保存用
-FILE* fout_fsim_result;	    //故障辞書ファイル
-FILE* fout_mttg;	        //1TP当たりで検出された故障数ファイル
-FILE* fout_log;				//ログファイル
-FILE* fout_tfl_log;         //目標故障集合ログファイル
+GLOBAL FILE* fout_mttg_pbo;		//MTTGのPBOファイル
+GLOBAL FILE* fout_fsim_result;	    //故障辞書ファイル
+GLOBAL FILE* fout_mttg;	        //1TP当たりで検出された故障数ファイル
+GLOBAL FILE* fout_tfl_log;         //目標故障集合ログファイル
 
 //------------------------------------------------------------------------
 //入力ファイル
 //------------------------------------------------------------------------
-FILE* fin_untest_pbo_result;	//テスト不能故障削除用のSTTGのPBO結果ファイル
-FILE* fin_mini_pbo_result;	    //目標故障選択用のPBO結果ファイル
+GLOBAL FILE* fin_untest_pbo_result;	//テスト不能故障削除用のSTTGのPBO結果ファイル
 
 //------------------------------------------------------------------------
 //フォルダー指定								
 //------------------------------------------------------------------------
-char* folder_out;		//出力ファイル用のフォルダー先
+GLOBAL char* folder_out;	//最終結果の出力フォルダー(末尾は必ず'/')
+GLOBAL char* folder_tmp;	//中間生成ファイル用フォルダー(folder_out + "tmp/")。毎回上書きされる作業用ファイルだけを置く
+GLOBAL char* tv_path;		//生成したテストベクトル(tv.txt)の置き場所。generate_tv.exe は実行フォルダに tv.txt を出すので、その後ここへ移す
 
 //------------------------------------------------------------------------
 //遷移故障用
 //------------------------------------------------------------------------
-int all_num;					//全故障数
-UNDET_FAULT_LIST *afl;			//全故障リスト
-int dfl_num;					//検出故障数
-UNDET_FAULT_LIST *dfl;			//検出故障リスト
-int ufl_num;					//未検出故障数
-UNDET_FAULT_LIST *ufl;			//未検出故障リスト
-int red_num;					//テスト不能故障数
-UNDET_FAULT_LIST *red;			//テスト不能故障リスト
-int hpfl_num;					//高消費電力故障数
-UNDET_FAULT_LIST *hpfl;			//高消費電力故障リスト
-int node_num;                   //総故障信号線数
-int tfl_num;					//目標故障数
-UNDET_FAULT_LIST* tfl;			//目標故障リスト
-UNDET_FAULT_LIST** tfl_node;	//目標故障の信号線集合
+GLOBAL int all_num;					//全故障数
+GLOBAL UNDET_FAULT_LIST *afl;		//全故障リスト
+GLOBAL int dfl_num;					//検出故障数
+GLOBAL UNDET_FAULT_LIST *dfl;		//検出故障リスト
+GLOBAL int ufl_num;					//未検出故障数
+GLOBAL UNDET_FAULT_LIST *ufl;		//未検出故障リスト
+GLOBAL int red_num;					//テスト不能故障数
+GLOBAL UNDET_FAULT_LIST *red;		//テスト不能故障リスト
+GLOBAL int hpfl_num;				//高消費電力故障数
+GLOBAL UNDET_FAULT_LIST *hpfl;		//高消費電力故障リスト
+GLOBAL int tfl_num;					//目標故障数
+GLOBAL UNDET_FAULT_LIST* tfl;		//目標故障リスト
 
 
 
@@ -120,11 +122,11 @@ UNDET_FAULT_LIST** tfl_node;	//目標故障の信号線集合
 //その他							
 //------------------------------------------------------------------------
 #define		X	-1				//ドントケア
-unsigned int suffix;			//添え字
-STACK Open;						//オープンパス用のスタック
-unsigned int fc_ppo;			//PPO数初期化
-QUE Que;						//キュー
-int tp_num;						//テストベクトル数
+GLOBAL unsigned int suffix;			//添え字
+GLOBAL STACK Open;					//オープンパス用のスタック
+GLOBAL unsigned int fc_ppo;			//PPO数初期化
+GLOBAL QUE Que;						//キュー
+GLOBAL int tp_num;					//テストベクトル数
 
 //------------------------------------------------------------------------
 //プロトタイプ宣言
@@ -137,7 +139,7 @@ int levelize(void);
 int judge_in_level(NLIST **in_pin, int n);
 //Qsort.c
 void Qsort(void);
-int compare_int(void *a, void *b);
+int compare_int(const void *a, const void *b);
 //set_literal_id.c
 void set_literal_id(void);
 //cmdline.c
@@ -176,6 +178,7 @@ int fault_judge(void);
 int file_output(clock_t time, int mode);
 //make_test_set.c
 void make_test_set(FILE *fp_ts);
+int generate_test_vector(const char* clasp_log);
 //pin_make.c
 int pin_make(void);
 //Que.c
@@ -186,6 +189,7 @@ int queue_emp(void);
 void reset_flag(void);
 //standard_output.c
 void standard_output(void);
+void print_info(FILE* fp);
 //check_open_pass.c
 int check_open_pass(void);
 //open_stack.c
@@ -193,11 +197,6 @@ void open_push(NLIST* p);
 NLIST* open_pop(void);
 //fault_select.c
 int fault_select(int unsat_flag);
-//mini_calc_pbo_size.c
-PBO mini_calc_pbo_size(void);
-int mini_calc_hard_constraint(void);
-//mini_pbo_generate.c
-void mini_pbo_generate_min(FILE* fp);
 //untest_calc_pbo_size.c
 PBO untest_calc_pbo_size(UNDET_FAULT_LIST* node);
 int untest_calc_hard_constraint(UNDET_FAULT_LIST* node);
@@ -218,23 +217,21 @@ int untest_delete_main(void);
 int input_transition_delay_fault_set(void);
 int all_transition_delay_fault_set(void);
 NLIST* search_netlist(char* name);
-//fault_select.c
-int fault_select(int unsat_flag);
 //mttg_calc_pbo_size.c
 PBO mttg_calc_pbo_size(void);
 PBO mttg_calc_hard_constraint(void);
 int mttg_calc_soft_constraint(void);
 //mttg_check_wsa.c
+int check_wsa(const char* high_name, const char* low_name);
 int mttg_check_wsa(void);
 //mttg_main.c
 int mttg_main(void);
 //mttg_pbo_generate.c
 void mttg_pbo_generate_min(FILE* fp);
-void pbo_generate_fdetect_c_mttg(FILE *fp, UNDET_FAULT_LIST* node);
+void pbo_generate_fdetect_circuit(FILE *fp, UNDET_FAULT_LIST* node);
 void pbo_generate_fault_ex(FILE *fp, UNDET_FAULT_LIST* node, int mode);
-void pbo_generate_power_mttg(FILE *fp);
 //specific_fault_range.c
-int specific_fault_range(char* name);
+int specific_fault_range(NLIST* fault_net);
 //undet_fault_delete.c
-int undet_fault_delete(UNDET_FAULT_LIST* node);
+void ufl_remove(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node);
 void ufl_free(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode);

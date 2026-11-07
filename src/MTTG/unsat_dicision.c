@@ -16,7 +16,7 @@
 //関数名:unsat_dicision
 //機能:SATかUNSATか判定
 //戻り値：int　SAT(=1),UNSAT(=0)
-//引数：mode(0:テスト不能故障削除時,1:目標故障選択時,2:高消費電力故障反転時)
+//引数：mode(0:テスト不能故障削除時,2:高消費電力故障反転時)
 //===================================================
 int unsat_dicision(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode) {
     int i;
@@ -32,7 +32,7 @@ int unsat_dicision(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode) 
 
 	//clasp結果ファイルオープン
 	if (mode == 0||mode==2) {
-		sprintf(txt_cmd, "%sclasp_log_untest.txt",folder_out);
+		sprintf(txt_cmd, "%sclasp_log_untest.txt", folder_tmp);
 		if ((fin_untest_pbo_result = fopen(txt_cmd, "r")) == NULL) {
 			printf("【ERROR】:File open clasp_log_untest.txt(unsat_dicision.c)\n");
 			exit(1);
@@ -41,17 +41,6 @@ int unsat_dicision(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode) 
 			fgets(str, 50000, fin_untest_pbo_result);
 		}
 		fclose(fin_untest_pbo_result);
-	}
-	else if (mode == 1) {
-		sprintf(txt_cmd, "%sclasp_log_mini.txt", folder_out);
-		if ((fin_mini_pbo_result = fopen(txt_cmd, "r")) == NULL) {
-			printf("【ERROR】:File open clasp_log_mini.txt(unsat_dicision.c)\n");
-			exit(1);
-		}
-		for (i = 0; i < 4; i++) {
-			fgets(str, 50000, fin_mini_pbo_result);
-		}
-		fclose(fin_mini_pbo_result);
 	}
 
 	d_str = strtok(str, "\n");
@@ -71,10 +60,6 @@ int unsat_dicision(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode) 
 		}
 
 		fclose(fin_untest_pbo_result);
-	}
-
-	if (mode == 1) {
-		fclose(fin_mini_pbo_result);
 	}
 
 	return UNSAT;

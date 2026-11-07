@@ -19,15 +19,16 @@
 //引数：なし
 //===================================================
 int init_exturn(void) {
-	char txt_cmd[300];
-	//char* file_n;
-	int str_file;
+	char txt_cmd[1024];
+	char* base;
+	size_t len;
 
 	//遷移故障関連
 	red = NULL;
 	hpfl = NULL;
+	dfl = NULL;
 	ufl_num = 0;		       //未検出故障数
-	dfl_num;				   //検出故障数
+	dfl_num = 0;			   //検出故障数
 	red_num = 0;		       //テスト不能故障数
 	hpfl_num = 0;			   //高消費電力故障数
 
@@ -35,54 +36,86 @@ int init_exturn(void) {
 	tp_num = 0;					//テストベクトル数
 
 	//キュー
-	Que.max = n_net * 1000;	    //最大値
+	//(キューに入るのは故障回路に含まれる信号線で、高々 n_net 個。
+	// 空判定が front==rear なので、満杯と空を区別するため +1 しておく)
+	Que.max = n_net + 1;		//最大値
 	Que.front = 0;				//先頭インデックス
 	Que.rear = 0;				//末尾インデックス
 	Que.num = 0;				//要素数
-	if ((Que.que = (NLIST**)calloc(n_net * 1000, sizeof(NLIST*))) == NULL) {
-		printf("【ERROR】:No calloc Que(init_exturn.c)");
-		exit(EXIT_FAILURE);
+	if ((Que.que = (NLIST**)calloc(Que.max, sizeof(NLIST*))) == NULL) {
+		printf("【ERROR】:No calloc Que(init_exturn.c)\n");
+		return ERROR;
 	}
 
-	//レベライズ
-	Level.max_num = n_net * 100;	//最大値
+	//レベライズ(スタックは足りなくなったら level_push が自動で拡張する)
+	Level.max_num = n_net;			//初期容量
 	Level.ptr = 0;					//インデックス
-	if ((Level.stk = (NLIST**)calloc(n_net, sizeof(NLIST*))) == NULL) {
+	if ((Level.stk = (NLIST**)calloc(Level.max_num, sizeof(NLIST*))) == NULL) {
 		printf("【ERROR】:No calloc Level stack(init_exturn.c)\n");
 		return ERROR;
 	}
 
-	//オープンパス
-	Open.max_num = n_net * 100;		//最大値
+	//オープンパス(同上)
+	Open.max_num = n_net;			//初期容量
 	Open.ptr = 0;					//インデックス
-	if ((Open.stk = (NLIST**)calloc(n_net, sizeof(NLIST*))) == NULL) {
+	if ((Open.stk = (NLIST**)calloc(Open.max_num, sizeof(NLIST*))) == NULL) {
 		printf("【ERROR】:No calloc Open stack(init_exturn.c)\n");
 		return ERROR;
 	}
 
-	//フォルダーの作成
-	if ((folder_out = (char*)calloc(100, sizeof(char))) == NULL) {
+	//フォルダー名の整理
+	//末尾の '/' '\' をいくつあっても取り除き、folder_out は必ず '/' で終わる形にする
+	//(指定が "./out" でも "./out/" でも同じに扱う)
+	len = strlen(fi[FOLDER].name);
+	if ((base = (char*)calloc(len + 1, sizeof(char))) == NULL) {
+		printf("【ERROR】:No calloc Folder name(init_exturn.c)\n");
+		return ERROR;
+	}
+	strcpy(base, fi[FOLDER].name);
+	while (len > 0 && (base[len - 1] == '/' || base[len - 1] == '\\')) {
+		base[--len] = '\0';
+	}
+	if (len == 0) {
+		printf("【ERROR】:Invalid folder name(init_exturn.c)\n");
+		free(base);
+		return ERROR;
+	}
+
+	folder_out = (char*)calloc(len + 2, sizeof(char));		// "<base>/"
+	folder_tmp = (char*)calloc(len + 6, sizeof(char));		// "<base>/tmp/"
+	tv_path = (char*)calloc(len + 14, sizeof(char));		// "<base>/tmp/tv.txt"
+	if (folder_out == NULL || folder_tmp == NULL || tv_path == NULL) {
 		printf("【ERROR】:No calloc Folder name output(init_exturn.c)\n");
+		free(base);
 		return ERROR;
 	}
-	strcpy(folder_out,fi[FOLDER].name);
-	str_file = strlen(fi[FOLDER].name) - 1;
-	fi[FOLDER].name[str_file] = '\0';
+	sprintf(folder_out, "%s/", base);
+	sprintf(folder_tmp, "%s/tmp/", base);
+	sprintf(tv_path, "%s/tmp/tv.txt", base);
 
-	if (_mkdir(fi[FOLDER].name) != 0) {
-		printf("【ERROR】:Please Delete Same name Folder(init_exturn.c)\n");
+	//フォルダーの作成(最終結果用 と 中間生成ファイル用)
+	if (_mkdir(base) != 0) {
+		printf("【ERROR】:Please Delete Same name Folder, or check the parent folder(init_exturn.c)\n");
+		free(base);
 		return ERROR;
 	}
+	snprintf(txt_cmd, sizeof(txt_cmd), "%s/tmp", base);
+	if (_mkdir(txt_cmd) != 0) {
+		printf("【ERROR】:Cannot make tmp Folder(init_exturn.c)\n");
+		free(base);
+		return ERROR;
+	}
+	free(base);
 
-	//ファイルを初期化
-	sprintf(txt_cmd, "%smttg.txt", folder_out);;
+	//ファイルの初期化
+	snprintf(txt_cmd, sizeof(txt_cmd), "%smttg.txt", folder_out);
 	if ((fout_mttg = fopen(txt_cmd, "w")) == NULL) {
 		printf("【ERROR】:File open mttg.txt(init_exturn.c)\n");
 		return ERROR;
 	}
 	fclose(fout_mttg);
 
-	sprintf(txt_cmd, "%stfl_log.txt", folder_out);
+	snprintf(txt_cmd, sizeof(txt_cmd), "%stfl_log.txt", folder_out);
 	if ((fout_tfl_log = fopen(txt_cmd, "w")) == NULL) {
 		printf("【ERROR】:File open tfl_log.txt(init_exturn.c)\n");
 		return ERROR;

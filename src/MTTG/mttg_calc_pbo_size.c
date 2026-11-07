@@ -138,12 +138,12 @@ PBO mttg_calc_hard_constraint(void) {
 	//-------------------------------------------------------------------------------------
 	while (head != NULL) {
 		tmp = head->next;	//tmp‚ÉŸ‚Ì–Ú•WŒÌáƒm[ƒh‚ğ•Û‘¶
-		specific_fault_range(head->name);	//ŒÌá”ÍˆÍ‚Ì“Á’è
+		specific_fault_range(head->netlist);	//ŒÌá”ÍˆÍ‚Ì“Á’è
 		//-------------------------------------------------------------------
 		//	ŒÌá‰ñ˜H‚Ì§–ñ”‚ğŒvZ
 		//-------------------------------------------------------------------
 		for (i = 0; i < n_net; i++) {
-			if (nl[i].fault_pass == YES && strcmp(nl[i].name, head->name) != 0) {
+			if (nl[i].fault_pass == YES && &nl[i] != head->netlist) {
 				switch (nl[i].type) {
 				case AND:
 					p.h_constraint += nl[i].n_in + 1;

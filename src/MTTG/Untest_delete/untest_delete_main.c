@@ -19,25 +19,22 @@
 //===================================================
 int untest_delete_main(void) {
 	int i = 0;
-	int count;
 	int count_a = 0;
 	int sat_flag;
 	int wsa_flag;
-	char cmd[500];
-	char txt_cmd[500];
+	char cmd[2048];
+	char txt_cmd[1024];
 	UNDET_FAULT_LIST* node;
 	UNDET_FAULT_LIST* pre_node = NULL;
 
 	node = ufl;
 
 	//単一故障テストパターンファイル
-	sprintf(txt_cmd, "%suntest_delete_tp.txt", folder_out);
+	snprintf(txt_cmd, sizeof(txt_cmd), "%suntest_delete_tp.txt", folder_out);
 	if ((fout_untest_tp = (fopen(txt_cmd, "w"))) == NULL) {
 		printf("【ERROR】:File open untest_delete_tp.txt(untest_delete_main.c)\n");
 		return ERROR;
 	}
-
-	count = 0;
 
 	//標準出力
 	printf("//===========================================\n");
@@ -57,10 +54,10 @@ int untest_delete_main(void) {
 
 		//故障範囲特定
 		suffix = 2 * n_net + 1;
-		specific_fault_range(node->name);
+		specific_fault_range(node->netlist);
 
 		//PBOファイル
-		sprintf(txt_cmd, "%suntest_pbo.txt",folder_out);
+		snprintf(txt_cmd, sizeof(txt_cmd), "%suntest_pbo.txt", folder_tmp);
 		if ((fout_untest_pbo = fopen(txt_cmd, "w")) == NULL) {
 			printf("【ERROR】:File open untest_pbo.txt(untest_delete_main.c)\n");
 			exit(1);
@@ -86,8 +83,8 @@ int untest_delete_main(void) {
 		//	clasp ⇒ テストベクトル生成
 		//========================================================================
 		//Clasp
-		sprintf(txt_cmd, "%sclasp_log_untest.txt",folder_out);
-		sprintf(cmd, "clasp.exe %suntest_pbo.txt --time-limit %d >%s",folder_out, fi[TIME].value, txt_cmd);
+		snprintf(txt_cmd, sizeof(txt_cmd), "%sclasp_log_untest.txt", folder_tmp);
+		snprintf(cmd, sizeof(cmd), "clasp.exe %suntest_pbo.txt --time-limit %d >%s", folder_tmp, fi[TIME].value, txt_cmd);
 		system(cmd);
 
 		//UNSATだった場合、未検出故障集合から削除
@@ -108,7 +105,7 @@ int untest_delete_main(void) {
 			//消費電力制約を追加
 
 			//PBOファイル
-			sprintf(txt_cmd, "%suntest_pbo.txt",folder_out);
+			snprintf(txt_cmd, sizeof(txt_cmd), "%suntest_pbo.txt", folder_tmp);
 			if ((fout_untest_pbo = fopen(txt_cmd, "a+")) == NULL) {
 				printf("【ERROR】:File open untest_pbo.txt(untest_delete_main.c)\n");
 				exit(1);
@@ -124,8 +121,8 @@ int untest_delete_main(void) {
 			//	clasp ⇒ テストベクトル生成
 			//========================================================================
 			//Clasp
-			sprintf(txt_cmd, "%sclasp_log_untest.txt",folder_out);
-			sprintf(cmd, "clasp.exe %suntest_pbo.txt --time-limit %d >%s",folder_out, fi[TIME].value, txt_cmd);
+			snprintf(txt_cmd, sizeof(txt_cmd), "%sclasp_log_untest.txt", folder_tmp);
+			snprintf(cmd, sizeof(cmd), "clasp.exe %suntest_pbo.txt --time-limit %d >%s", folder_tmp, fi[TIME].value, txt_cmd);
 			system(cmd);
 
 			//UNSATだった場合、未検出故障集合から削除→高消費電力故障
@@ -137,8 +134,10 @@ int untest_delete_main(void) {
 			}
 			else if (sat_flag == SAT) {
 				//テストベクトル生成
-				sprintf(cmd, "generate_tv.exe %s %d", txt_cmd, n_pi + n_dff);
-				system(cmd);
+				if (generate_test_vector(txt_cmd) != SUCCESS) {
+					printf("【ERROR】:Generate Test Vector(untest_delete_main.c)\n");
+					exit(1);
+				}
 
 				//消費電力解析
 				if ((wsa_flag = untest_check_wsa(node, pre_node)) == SAT) {
@@ -149,7 +148,6 @@ int untest_delete_main(void) {
 					node = node->next;
 				}
 				else if (wsa_flag == ERROR || wsa_flag == UNSAT) {
-					printf("%d", count);
 					printf("【ERROR】:Untest Check WSA(untest_delete_main.c)\n");
 					exit(1);
 				}

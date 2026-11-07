@@ -1,3 +1,5 @@
+#pragma once
+
 //------------------------------------------------------------------------
 //Netlist 定義, 外部変数, プロトタイプ宣言
 //File name : Nelist.h
@@ -59,46 +61,46 @@ typedef struct _Netlist_Format_ {
 // 外部変数
 //------------------------------------------------------------------------
 //ネットリスト
-NLIST *nl;
+GLOBAL NLIST *nl;
 
 //モジュール名
-char *module_name;
+GLOBAL char *module_name;
 
 //信号数
-int n_net;
+GLOBAL int n_net;
 
 //外部入力数, 外部入力
-NLIST **pi;
-int n_pi;
+GLOBAL NLIST **pi;
+GLOBAL int n_pi;
 
 //疑似外部出力数, 疑似外部出力
-NLIST **ppi;
-int n_ppi;
+GLOBAL NLIST **ppi;
+GLOBAL int n_ppi;
 
 //外部出力数, 外部出力
-NLIST **po;
-int n_po;
+GLOBAL NLIST **po;
+GLOBAL int n_po;
 
 //疑似外部出力数, 疑似外部出力
-NLIST **ppo;
-int n_ppo;
+GLOBAL NLIST **ppo;
+GLOBAL int n_ppo;
 
 //DFF, DFF数
-NLIST **dff;
-int n_dff;
+GLOBAL NLIST **dff;
+GLOBAL int n_dff;
 
 //RDFF, RDFF数
-NLIST **rdff;
-int n_rdff;
+GLOBAL NLIST **rdff;
+GLOBAL int n_rdff;
 
 //DFFS, DFFS数
-NLIST **dffs;
-int n_dffs;
+GLOBAL NLIST **dffs;
+GLOBAL int n_dffs;
 
 //RDFFS, RDFFS数
-NLIST **rdffs;
-int n_rdffs;
+GLOBAL NLIST **rdffs;
+GLOBAL int n_rdffs;
 
 //assign
-NLIST **assign;
-int n_assign;
+GLOBAL NLIST **assign;
+GLOBAL int n_assign;

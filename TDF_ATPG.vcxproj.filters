@@ -135,6 +135,9 @@
     <ClCompile Include="src\Main\check_open_pass.c">
       <Filter>ソース ファイル\Main</Filter>
     </ClCompile>
+    <ClCompile Include="src\Main\globals.c">
+      <Filter>ソース ファイル\Main</Filter>
+    </ClCompile>
     <ClCompile Include="src\Main\main.c">
       <Filter>ソース ファイル\Main</Filter>
     </ClCompile>
@@ -142,12 +145,6 @@
       <Filter>ソース ファイル\Main</Filter>
     </ClCompile>
     <ClCompile Include="src\MTTG\MiniPBO\fault_select.c">
-      <Filter>ソース ファイル\MTTG\MiniPBO</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MTTG\MiniPBO\mini_calc_pbo_size.c">
-      <Filter>ソース ファイル\MTTG\MiniPBO</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MTTG\MiniPBO\mini_pbo_generate.c">
       <Filter>ソース ファイル\MTTG\MiniPBO</Filter>
     </ClCompile>
     <ClCompile Include="src\MTTG\Untest_delete\untest_calc_pbo_size.c">

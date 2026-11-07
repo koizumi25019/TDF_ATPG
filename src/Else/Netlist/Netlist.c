@@ -523,6 +523,9 @@ static void alloc_nl(void)
 
 	//‰Šú‰»
 	for (i = 0; i<nl_num; i++) {
+		nl[i].name = NULL;
+		nl[i].name_port = NULL;
+		nl[i].name_ins = NULL;
 		nl[i].type = -1;
 		nl[i].n_in = 0;
 		nl[i].in = (NLIST **)NULL;
@@ -531,6 +534,9 @@ static void alloc_nl(void)
 		parser_array[0][i] = 0;
 		parser_array[1][i] = 0;
 
+		nl[i].level = 0;
+		nl[i].flag = 0;
+		nl[i].ppo_flag = 0;
 		nl[i].open_pass = YES;
 		nl[i].fault_pass = NO;
 		nl[i].val_1t = X;

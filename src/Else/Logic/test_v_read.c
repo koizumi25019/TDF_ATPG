@@ -24,7 +24,7 @@ int test_v_read(void) {
 	char *p_str;
 
 	//fopen
-	fp = fopen("tv.txt", "r");
+	fp = fopen(tv_path, "r");
 
 	//テストパターン領域確保
 	str = (char*)malloc(sizeof(char)*((n_pi + n_ppi) + 1));

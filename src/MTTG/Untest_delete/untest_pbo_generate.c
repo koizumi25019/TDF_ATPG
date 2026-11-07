@@ -46,6 +46,86 @@ void untest_pbo_generate_min(FILE* fp,UNDET_FAULT_LIST* node) {
 }
 
 
+//------------------------------------------------------------------------
+//どの時刻(回路)の変数番号を使うか
+//------------------------------------------------------------------------
+#define FRAME_1T	0	//正常回路の1時刻目
+#define FRAME_2T	1	//正常回路の2時刻目
+#define FRAME_FC	2	//故障回路
+
+//=========================================================================
+//  関数名 : lit_of
+//  機  能 : 信号線の、指定した時刻(回路)での変数番号を返す
+//  戻り値 : 変数番号
+//  引  数 : 信号線，時刻(回路)
+//=========================================================================
+static unsigned int lit_of(const NLIST* net, int frame) {
+	switch (frame) {
+	case FRAME_1T: return net->suf_1t;
+	case FRAME_2T: return net->suf_2t;
+	default:       return net->suf_fc;
+	}
+}
+
+//=========================================================================
+//  関数名 : emit_gate
+//  機  能 : 論理ゲート1つ分の制約(CNF)を、指定した時刻(回路)の変数番号で書き出す
+//           (正常回路の1時刻目/2時刻目、故障回路で同じ式を使い回すための関数)
+//  戻り値 : なし
+//  引  数 : ファイルポインタ，ゲート，時刻(回路)
+//=========================================================================
+static void emit_gate(FILE* fp, const NLIST* g, int frame) {
+	int j;
+	unsigned int o = lit_of(g, frame);					//出力
+	unsigned int in0 = 0, in1 = 0;						//入力(INV/BUF/FOUT/EXORで使用)
+
+	if (g->n_in >= 1) in0 = lit_of(g->in[0], frame);
+	if (g->n_in >= 2) in1 = lit_of(g->in[1], frame);
+
+	switch (g->type) {
+		//●AND
+	case AND:
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 x%u +1 ~x%u >=1;\n", lit_of(g->in[j], frame), o); }
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 ~x%u +", lit_of(g->in[j], frame)); }
+		fprintf(fp, "1 x%u >=1;\n", o);
+		break;
+		//●NAND
+	case NAND:
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 x%u +1 x%u >=1;\n", lit_of(g->in[j], frame), o); }
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 ~x%u +", lit_of(g->in[j], frame)); }
+		fprintf(fp, "1 ~x%u >=1;\n", o);
+		break;
+		//●OR
+	case OR:
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 ~x%u +1 x%u >=1;\n", lit_of(g->in[j], frame), o); }
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 x%u +", lit_of(g->in[j], frame)); }
+		fprintf(fp, "1 ~x%u >=1;\n", o);
+		break;
+		//●NOR
+	case NOR:
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 ~x%u +1 ~x%u >=1;\n", lit_of(g->in[j], frame), o); }
+		for (j = 0; j < g->n_in; j++) { fprintf(fp, "1 x%u +", lit_of(g->in[j], frame)); }
+		fprintf(fp, "1 x%u >=1;\n", o);
+		break;
+		//●INV
+	case INV:
+		fprintf(fp, "1 ~x%u +1 ~x%u >=1;\n1 x%u +1 x%u >=1;\n", in0, o, in0, o);
+		break;
+		//●FOUT, BUF
+	case FOUT:
+	case BUF:
+		fprintf(fp, "1 ~x%u +1 x%u >=1;\n1 x%u +1 ~x%u >=1;\n", in0, o, in0, o);
+		break;
+		//●EXOR
+	case EXOR:
+		fprintf(fp, "1 ~x%u +1 ~x%u +1 ~x%u >=1;\n", in0, in1, o);
+		fprintf(fp, "1 x%u +1 x%u +1 ~x%u >=1;\n", in0, in1, o);
+		fprintf(fp, "1 x%u +1 ~x%u +1 x%u >=1;\n", in0, in1, o);
+		fprintf(fp, "1 ~x%u +1 x%u +1 x%u >=1;\n", in0, in1, o);
+		break;
+	}
+}
+
 //=========================================================================
 //  関数名 : pbo_generate_normal_c
 //  機  能 : 正常回路記述
@@ -54,98 +134,22 @@ void untest_pbo_generate_min(FILE* fp,UNDET_FAULT_LIST* node) {
 //=========================================================================
 void pbo_generate_normal_c(FILE *fp) {
 
-	int i, j;
+	int i;
 
-	//-----------------------------------------------------------------------------
-	//■PBOファイル記述
-	//-----------------------------------------------------------------------------
 	for (i = 0; i < n_net; i++) {
 		switch (sort_nl[i]->type) {
-			//●AND-------------------------------------------------------------------------------------------------------------------------------
-		case AND:
-			//1時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[j]->suf_1t, sort_nl[i]->suf_1t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +", sort_nl[i]->in[j]->suf_1t); }
-			fprintf(fp, "1 x%d >=1;\n", sort_nl[i]->suf_1t);
-			//2時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[j]->suf_2t, sort_nl[i]->suf_2t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +", sort_nl[i]->in[j]->suf_2t); }
-			fprintf(fp, "1 x%d >=1;\n", sort_nl[i]->suf_2t);
-			break;
-			//●NAND-------------------------------------------------------------------------------------------------------------------------------
-		case NAND:
-			//1時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +1 x%d >=1;\n", sort_nl[i]->in[j]->suf_1t, sort_nl[i]->suf_1t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +", sort_nl[i]->in[j]->suf_1t); }
-			fprintf(fp, "1 ~x%d >=1;\n", sort_nl[i]->suf_1t);
-			//2時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +1 x%d >=1;\n", sort_nl[i]->in[j]->suf_2t, sort_nl[i]->suf_2t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +", sort_nl[i]->in[j]->suf_2t); }
-			fprintf(fp, "1 ~x%d >=1;\n", sort_nl[i]->suf_2t);
-			break;
-			//●OR-------------------------------------------------------------------------------------------------------------------------------
-		case OR:
-			//1時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +1 x%d >=1;\n", sort_nl[i]->in[j]->suf_1t, sort_nl[i]->suf_1t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +", sort_nl[i]->in[j]->suf_1t); }
-			fprintf(fp, "1 ~x%d >=1;\n", sort_nl[i]->suf_1t);
-			//2時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +1 x%d >=1;\n", sort_nl[i]->in[j]->suf_2t, sort_nl[i]->suf_2t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +", sort_nl[i]->in[j]->suf_2t); }
-			fprintf(fp, "1 ~x%d >=1;\n", sort_nl[i]->suf_2t);
-			break;
-			//●NOR-------------------------------------------------------------------------------------------------------------------------------
-		case NOR:
-			//1時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +1 ~x%d >=1;\n", sort_nl[i]->in[j]->suf_1t, sort_nl[i]->suf_1t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +", sort_nl[i]->in[j]->suf_1t); }
-			fprintf(fp, "1 x%d >=1;\n", sort_nl[i]->suf_1t);
-			//2時刻目
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +1 ~x%d >=1;\n", sort_nl[i]->in[j]->suf_2t, sort_nl[i]->suf_2t); }
-			for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +", sort_nl[i]->in[j]->suf_2t); }
-			fprintf(fp, "1 x%d >=1;\n", sort_nl[i]->suf_2t);
-			break;
-			//●INV-------------------------------------------------------------------------------------------------------------------------------
-		case INV:
-			//1時刻目
-			fprintf(fp, "1 ~x%d +1 ~x%d >=1;\n1 x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_1t, sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_1t);
-			//2時刻目
-			fprintf(fp, "1 ~x%d +1 ~x%d >=1;\n1 x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_2t, sort_nl[i]->suf_2t, sort_nl[i]->in[0]->suf_2t, sort_nl[i]->suf_2t);
-			break;
-			//●FOUT-------------------------------------------------------------------------------------------------------------------------------
-		case FOUT:
-			//1時刻目
-			fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_1t, sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_1t);
-			//2時刻目
-			fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_2t, sort_nl[i]->suf_2t, sort_nl[i]->in[0]->suf_2t, sort_nl[i]->suf_2t);
-			break;
-			//●BUF-------------------------------------------------------------------------------------------------------------------------------
-		case BUF:
-			//1時刻目
-			fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_1t, sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_1t);
-			//2時刻目
-			fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_2t, sort_nl[i]->suf_2t, sort_nl[i]->in[0]->suf_2t, sort_nl[i]->suf_2t);
-			break;
-			//●EXOR-------------------------------------------------------------------------------------------------------------------------------
-		case EXOR:
-			//1時刻目
-			fprintf(fp, "1 ~x%d +1 ~x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->in[1]->suf_1t, sort_nl[i]->suf_1t);
-			fprintf(fp, "1 x%d +1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->in[1]->suf_1t, sort_nl[i]->suf_1t);
-			fprintf(fp, "1 x%d +1 ~x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->in[1]->suf_1t, sort_nl[i]->suf_1t);
-			fprintf(fp, "1 ~x%d +1 x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->in[1]->suf_1t, sort_nl[i]->suf_1t);
-			//2時刻目
-			fprintf(fp, "1 ~x%d +1 ~x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_2t, sort_nl[i]->in[1]->suf_2t, sort_nl[i]->suf_2t);
-			fprintf(fp, "1 x%d +1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_2t, sort_nl[i]->in[1]->suf_2t, sort_nl[i]->suf_2t);
-			fprintf(fp, "1 x%d +1 ~x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_2t, sort_nl[i]->in[1]->suf_2t, sort_nl[i]->suf_2t);
-			fprintf(fp, "1 ~x%d +1 x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_2t, sort_nl[i]->in[1]->suf_2t, sort_nl[i]->suf_2t);
-			break;
-			//●DFF-------------------------------------------------------------------------------------------------------------------------------
+			//●DFF(1時刻目のD入力 = 2時刻目のQ)
 		case DFF:
-			fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_2t, sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_2t);
+			fprintf(fp, "1 ~x%u +1 x%u >=1;\n1 x%u +1 ~x%u >=1;\n", sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_2t, sort_nl[i]->in[0]->suf_1t, sort_nl[i]->suf_2t);
 			break;
-			//●IN-------------------------------------------------------------------------------------------------------------------------------
+			//●IN(外部入力は1時刻目と2時刻目で同じ値)
 		case IN:
-			fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->suf_1t, sort_nl[i]->suf_2t, sort_nl[i]->suf_1t, sort_nl[i]->suf_2t);
+			fprintf(fp, "1 ~x%u +1 x%u >=1;\n1 x%u +1 ~x%u >=1;\n", sort_nl[i]->suf_1t, sort_nl[i]->suf_2t, sort_nl[i]->suf_1t, sort_nl[i]->suf_2t);
+			break;
+			//●論理ゲート(1時刻目、2時刻目の順)
+		default:
+			emit_gate(fp, sort_nl[i], FRAME_1T);
+			emit_gate(fp, sort_nl[i], FRAME_2T);
 			break;
 		}
 	}
@@ -160,59 +164,12 @@ void pbo_generate_normal_c(FILE *fp) {
 //=========================================================================
 void pbo_generate_fault_c(FILE *fp, UNDET_FAULT_LIST* node) {
 
-	int i, j;
+	int i;
 
-	//fprintf(fp, "\n");
-	//-----------------------------------------------------------------------------
-	//■PBOファイル記述
-	//-----------------------------------------------------------------------------
 	for (i = 0; i < n_net; i++) {
-		if (sort_nl[i]->fault_pass == YES && strcmp(sort_nl[i]->name, node->name) != 0) {
-			switch (sort_nl[i]->type) {
-				//●AND-------------------------------------------------------------------------------------------------------------------------------
-			case AND:
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[j]->suf_fc, sort_nl[i]->suf_fc); }
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +", sort_nl[i]->in[j]->suf_fc); }
-				fprintf(fp, "1 x%d >=1;\n", sort_nl[i]->suf_fc);
-				break;
-				//●NAND-------------------------------------------------------------------------------------------------------------------------------
-			case NAND:
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +1 x%d >=1;\n", sort_nl[i]->in[j]->suf_fc, sort_nl[i]->suf_fc); }
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +", sort_nl[i]->in[j]->suf_fc); }
-				fprintf(fp, "1 ~x%d >=1;\n", sort_nl[i]->suf_fc);
-				break;
-				//●OR-------------------------------------------------------------------------------------------------------------------------------
-			case OR:
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +1 x%d >=1;\n", sort_nl[i]->in[j]->suf_fc, sort_nl[i]->suf_fc); }
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +", sort_nl[i]->in[j]->suf_fc); }
-				fprintf(fp, "1 ~x%d >=1;\n", sort_nl[i]->suf_fc);
-				break;
-				//●NOR-------------------------------------------------------------------------------------------------------------------------------
-			case NOR:
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 ~x%d +1 ~x%d >=1;\n", sort_nl[i]->in[j]->suf_fc, sort_nl[i]->suf_fc); }
-				for (j = 0; j < sort_nl[i]->n_in; j++) { fprintf(fp, "1 x%d +", sort_nl[i]->in[j]->suf_fc); }
-				fprintf(fp, "1 x%d >=1;\n", sort_nl[i]->suf_fc);
-				break;
-				//●INV-------------------------------------------------------------------------------------------------------------------------------
-			case INV:
-				fprintf(fp, "1 ~x%d +1 ~x%d >=1;\n1 x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_fc, sort_nl[i]->suf_fc, sort_nl[i]->in[0]->suf_fc, sort_nl[i]->suf_fc);
-				break;
-				//●FOUT-------------------------------------------------------------------------------------------------------------------------------
-			case FOUT:
-				fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_fc, sort_nl[i]->suf_fc, sort_nl[i]->in[0]->suf_fc, sort_nl[i]->suf_fc);
-				break;
-				//●BUF-------------------------------------------------------------------------------------------------------------------------------
-			case BUF:
-				fprintf(fp, "1 ~x%d +1 x%d >=1;\n1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_fc, sort_nl[i]->suf_fc, sort_nl[i]->in[0]->suf_fc, sort_nl[i]->suf_fc);
-				break;
-				//●EXOR-------------------------------------------------------------------------------------------------------------------------------
-			case EXOR:
-				fprintf(fp, "1 ~x%d +1 ~x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_fc, sort_nl[i]->in[1]->suf_fc, sort_nl[i]->suf_fc);
-				fprintf(fp, "1 x%d +1 x%d +1 ~x%d >=1;\n", sort_nl[i]->in[0]->suf_fc, sort_nl[i]->in[1]->suf_fc, sort_nl[i]->suf_fc);
-				fprintf(fp, "1 x%d +1 ~x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_fc, sort_nl[i]->in[1]->suf_fc, sort_nl[i]->suf_fc);
-				fprintf(fp, "1 ~x%d +1 x%d +1 x%d >=1;\n", sort_nl[i]->in[0]->suf_fc, sort_nl[i]->in[1]->suf_fc, sort_nl[i]->suf_fc);
-				break;
-			}
+		//故障信号線そのものは、故障励起の制約で値を決めるので式は作らない
+		if (sort_nl[i]->fault_pass == YES && sort_nl[i] != node->netlist) {
+			emit_gate(fp, sort_nl[i], FRAME_FC);
 		}
 	}
 
@@ -221,70 +178,24 @@ void pbo_generate_fault_c(FILE *fp, UNDET_FAULT_LIST* node) {
 
 //=========================================================================
 //  関数名 : pbo_generate_fdetect_c
-//  機  能 : 故障検出回路記述
+//  機  能 : 故障検出回路記述(テスト不能故障削除用)
+//           検出回路 ＋ 「検出されること」＋ 故障励起
 //  戻り値 : なし
 //  引  数 : ファイルポインタ，対象故障
 //=========================================================================
 void pbo_generate_fdetect_c(FILE *fp, UNDET_FAULT_LIST* node) {
 
-	int i, j/*,k*/;
-	unsigned int *fdetct_in;
+	//検出回路(出力の変数番号は node->tfl_det_suffix に入る)
+	pbo_generate_fdetect_circuit(fp, node);
 
-	if ((fdetct_in = (unsigned int*)calloc(fc_ppo, sizeof(unsigned int))) == NULL) {
-		printf("【ERROR】:No calloc Fault Det Circuit(sttg_pbo_generate.c)\n"); //故障検出回路の入力配列領域確保失敗
-		exit(1);
-	}
-
-	j = 0;
-	for (i = 0; i < n_net; i++) {
-		if (nl[i].fault_pass == YES && nl[i].ppo_flag ==1)  {
-			//●EXOR
-			fprintf(fp, "1 ~x%d +1 ~x%d +1 ~x%d >=1;\n", nl[i].suf_2t, nl[i].suf_fc, suffix);
-			fprintf(fp, "1 x%d +1 x%d +1 ~x%d >=1;\n", nl[i].suf_2t, nl[i].suf_fc, suffix);
-			fprintf(fp, "1 x%d +1 ~x%d +1 x%d >=1;\n", nl[i].suf_2t, nl[i].suf_fc, suffix);
-			fprintf(fp, "1 ~x%d +1 x%d +1 x%d >=1;\n", nl[i].suf_2t, nl[i].suf_fc, suffix);
-			fdetct_in[j] = suffix;
-			suffix++;
-			j++;
-		}
-	}
-
-	if (fc_ppo != 1) {
-		for (i = 0; (unsigned int)i < fc_ppo; i++) { fprintf(fp, "1 ~x%d +1 x%d >=1;\n", fdetct_in[i], suffix); }
-		for (i = 0; (unsigned int)i < fc_ppo; i++) { fprintf(fp, "1 x%d +", fdetct_in[i]); }
-		fprintf(fp, "1 ~x%d >=1;\n", suffix);
-		fprintf(fp, "1 x%d >=1;\n", suffix);
-		suffix++;
-	}
-	else if (fc_ppo == 1) {
-		fprintf(fp, "1 x%d >=1;\n", suffix - 1);
-	}
-
-	//ここから故障励起関連だと思う
-
-	for (i = 0; i < n_net; i++) {
-		if (strcmp(nl[i].name, node->name) == 0) {
-			switch (node->type) {
-			case STF:
-				fprintf(fp, "1 x%d >=1;\n", nl[i].suf_1t);
-				fprintf(fp, "1 ~x%d >=1;\n", nl[i].suf_2t);
-				fprintf(fp, "1 x%d >=1;\n", nl[i].suf_fc);
-				break;
-			case STR:
-				fprintf(fp, "1 ~x%d >=1;\n", nl[i].suf_1t);
-				fprintf(fp, "1 x%d >=1;\n", nl[i].suf_2t);
-				fprintf(fp, "1 ~x%d >=1;\n", nl[i].suf_fc);
-				break;
-			}
-			break;
-		}
-	}
+	//検出されること ＋ 故障励起(mode=0:ハード制約)
+	pbo_generate_fault_ex(fp, node, 0);
 
 }
 
 //=========================================================================
 //  関数名 : pbo_generate_power
-//  機  能 : 消費電力制約
+//  機  能 : 消費電力制約(テスト不能故障削除用・MTTG用 共通)
 //  戻り値 : なし
 //  引  数 : ファイルポインタ
 //=========================================================================
@@ -293,7 +204,7 @@ void pbo_generate_power(FILE *fp) {
 	char* cons1 = (char*)NULL;
 
 	if ((cons1 = (char*)calloc(500000, sizeof(char))) == NULL) {
-		printf("【ERROR】:No calloc cons1(mttg_pbo_generate.c)\n");
+		printf("【ERROR】:No calloc cons1(untest_pbo_generate.c)\n");
 		exit(1);
 	}
 
@@ -311,4 +222,6 @@ void pbo_generate_power(FILE *fp) {
 	suffix++;
 
 	fprintf(fp, "%s", cons1);
+
+	free(cons1);
 }

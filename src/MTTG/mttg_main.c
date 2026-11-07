@@ -18,15 +18,14 @@
 //引数：なし
 //===================================================
 int mttg_main(void) {
-	int i = 0;
-	char txt_cmd[200];
-	char cmd[500];
+	char txt_cmd[1024];
+	char cmd[2048];
 	int unsat_flag = OFF;
 	UNDET_FAULT_LIST *head;
 	int det_fault_clasp_num;
 
 	//テストパターンファイルオープン
-	sprintf(txt_cmd, "%stp_set.txt", folder_out);
+	snprintf(txt_cmd, sizeof(txt_cmd), "%stp_set.txt", folder_out);
 	if ((fout_tp = (fopen(txt_cmd, "w"))) == NULL) {
 		printf("【ERROR】:File open tp_set.txt(mttg_main.c)\n");
 		return ERROR;
@@ -82,7 +81,7 @@ int mttg_main(void) {
 	//テスト生成
 	while (ufl_num != 0) {
 		//PBOファイル
-		sprintf(txt_cmd, "%smttg_pbo.txt", folder_out);
+		snprintf(txt_cmd, sizeof(txt_cmd), "%smttg_pbo.txt", folder_tmp);
 		if ((fout_mttg_pbo = fopen(txt_cmd, "w")) == NULL) {
 			printf("【ERROR】:File open mttg_pbo.txt(mttg_main.c)\n");
 			exit(1);
@@ -103,37 +102,26 @@ int mttg_main(void) {
 
 		suffix = n_net * 2 + 1;
 		head = tfl;
-		i = 0;
 		while (head != NULL) {
 			//故障範囲の特定
-			specific_fault_range(head->name);
+			specific_fault_range(head->netlist);
 			//故障回路の記述
 			pbo_generate_fault_c(fout_mttg_pbo, head);
 			//故障検出回路の記述
-			pbo_generate_fdetect_c_mttg(fout_mttg_pbo, head);
+			pbo_generate_fdetect_circuit(fout_mttg_pbo, head);
 			//次の故障
 			head = head->next;
-			i++;
 		}
 		printf("\n");
 		
-		//故障励起
-		head = tfl;
-		i = 0;
-		while (head != NULL) {
-			if (i == 0) {
-				pbo_generate_fault_ex(fout_mttg_pbo, head,0);
-			}
-			else {
-				pbo_generate_fault_ex(fout_mttg_pbo, head, 1);
-			}
-			head = head->next;
-			i++;
+		//故障励起(1個目はハード制約、2個目以降はソフト制約)
+		for (head = tfl; head != NULL; head = head->next) {
+			pbo_generate_fault_ex(fout_mttg_pbo, head, (head == tfl) ? 0 : 1);
 		}
 
 		//低消費電力制約
 		if (strcmp(fi[LOW_POWER].name, "ON") == 0) {
-			pbo_generate_power_mttg(fout_mttg_pbo);
+			pbo_generate_power(fout_mttg_pbo);
 		}
 
 		fclose(fout_mttg_pbo);
@@ -142,11 +130,14 @@ int mttg_main(void) {
 		//	clasp ⇒ テストベクトル生成
 		//========================================================================
 		//Clasp
-		sprintf(cmd, "clasp.exe  %smttg_pbo.txt --parallel-mode 24 >%sclasp_log_mttg.txt",folder_out,folder_out);
+		snprintf(cmd, sizeof(cmd), "clasp.exe  %smttg_pbo.txt --parallel-mode 24 >%sclasp_log_mttg.txt", folder_tmp, folder_tmp);
 		system(cmd);
-		//テストベクトル生成
-		sprintf(cmd, "generate_tv.exe %sclasp_log_mttg.txt %d",folder_out, n_pi + n_dff);
-		system(cmd);
+		//テストベクトル生成(tv.txt は中間生成フォルダーへ移される)
+		snprintf(txt_cmd, sizeof(txt_cmd), "%sclasp_log_mttg.txt", folder_tmp);
+		if (generate_test_vector(txt_cmd) != SUCCESS) {
+			printf("【ERROR】:Generate Test Vector(mttg_main.c)\n");
+			return ERROR;
+		}
 
 		//低消費テストパターン確認(消費電力指向時のみ)
 		if ((mttg_check_wsa() != SAT) && (strcmp(fi[LOW_POWER].name, "ON") == 0)) {
@@ -166,7 +157,7 @@ int mttg_main(void) {
 		//========================================================================
 		//	故障シミュレーション
 		//========================================================================
-		sprintf(cmd, "XID2.exe -c %s -tx tv.txt -pin %spin.txt -fm TDF -fsim YES -dic %sfsim_log.txt -det %sxid_det.txt -undet %sxid_undet.txt", fi[CIRCUIT].name, folder_out, folder_out, folder_out,folder_out);
+		snprintf(cmd, sizeof(cmd), "XID2.exe -c %s -tx %s -pin %spin.txt -fm TDF -fsim YES -dic %sfsim_log.txt -det %sxid_det.txt -undet %sxid_undet.txt", fi[CIRCUIT].name, tv_path, folder_out, folder_tmp, folder_tmp, folder_tmp);
 		system(cmd);
 
 		//コンソールアプリケーションの初期化
