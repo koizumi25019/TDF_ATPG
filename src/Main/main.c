@@ -14,6 +14,30 @@
 #include"../Header/Define.h"
 
 //===================================================
+//関数名:check_gate_types
+//機能:回路に、このプログラムが対応していないゲートが無いか確認
+//戻り値：int 正常:SUCCESS(=0) , 未対応のゲートあり:ERROR(=-1)
+//引数：なし
+//===================================================
+static int check_gate_types(void) {
+	int i;
+
+	for (i = 0; i < n_net; i++) {
+		switch (nl[i].type) {
+		case EXNOR:
+		case RDFF:
+		case DFFS:
+		case RDFFS:
+		case GND:
+		case ACC:
+			printf("【ERROR】:Unsupported gate type %d (net %s)(main.c)\n", nl[i].type, nl[i].name);
+			return ERROR;
+		}
+	}
+	return SUCCESS;
+}
+
+//===================================================
 //関数名:main
 //機能:Transition_Delay_Fault_ATPGのmain
 //戻り値：int 正常終了:SUCCESS(=0) , 異常終了:ERROR(=-1)
@@ -32,6 +56,11 @@ int main(int argc, char *argv[]) {
 	//ネットリスト起動
 	read_nl(fi[CIRCUIT].name);
 	make_ppo_ppi();
+
+	//未対応のゲートが含まれていないか確認(含まれていると、PBOに制約が出力されず誤ったテストになるため)
+	if (check_gate_types() != SUCCESS) {
+		exit(ERROR);
+	}
 
 	//初期化
 	if (init_exturn() != SUCCESS) {

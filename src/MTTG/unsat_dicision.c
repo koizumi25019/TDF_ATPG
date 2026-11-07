@@ -28,6 +28,13 @@ int read_clasp_status(const char* path) {
 		printf("【ERROR】:File open %s(unsat_dicision.c)\n", path);
 		return ERROR;
 	}
+	//clasp は起動すれば必ず "c clasp version ..." などを出力する。ログが空なら clasp が実行できていない
+	if (fgetc(fp) == EOF) {
+		printf("【ERROR】:%s is empty. Is clasp.exe available? (unsat_dicision.c)\n", path);
+		fclose(fp);
+		exit(1);
+	}
+	rewind(fp);
 	while (fgets(line, sizeof(line), fp) != NULL) {
 		if (strncmp(line, "s ", 2) != 0) continue;
 		if (strncmp(line, "s UNSATISFIABLE", 15) == 0) result = UNSAT;

@@ -163,9 +163,6 @@ int mttg_main(void) {
 			return ERROR;
 		}
 
-		//テスト集合に追加
-		make_test_set(fout_tp);
-
 		//========================================================================
 		//	故障シミュレーション
 		//========================================================================
@@ -179,6 +176,11 @@ int mttg_main(void) {
 		if ((det_fault_clasp_num=fault_judge()) == ERROR) {
 			printf("【ERROR】:Fault Judge(mttg_main.c)\n");
 			return ERROR;
+		}
+
+		//故障を1つでも検出したテストだけをテスト集合に追加(検出0のテストは不要)
+		if (det_fault_clasp_num > 0) {
+			make_test_set(fout_tp);
 		}
 		
 no_test_generated:

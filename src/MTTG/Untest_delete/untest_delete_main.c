@@ -56,6 +56,15 @@ int untest_delete_main(void) {
 		suffix = 2 * n_net + 1;
 		specific_fault_range(node->netlist);
 
+		//故障が影響を与えるPPOが1つも無い(外部出力(PO)にしか届かない等)場合、検出回路が
+		//「検出=1 かつ 検出=0」になり必ず UNSAT になる。clasp を呼ぶまでもなくテスト不能とする
+		if (fc_ppo == 0) {
+			ufl_free(node, pre_node, UFL_UNTESTABLE);
+			if (pre_node == NULL)node = ufl;
+			else node = pre_node->next;
+			continue;
+		}
+
 		//PBOファイル
 		snprintf(txt_cmd, sizeof(txt_cmd), "%suntest_pbo.txt", folder_tmp);
 		if ((fout_untest_pbo = fopen(txt_cmd, "w")) == NULL) {
