@@ -48,9 +48,6 @@ typedef struct _Netlist_Format_ {
 	int ppo_flag;				    //擬似外部出力フラグ
 	int tf_flag;					//目標故障フラグ
 
-	int val_1t;						//1時刻目の論理値
-	int val_2t;						//2時刻目の論理値
-
 	unsigned int suf_1t;			//1時刻目の添え字
 	unsigned int suf_2t;			//2時刻目の添え字
 	unsigned int suf_fc;			//故障回路の添え字

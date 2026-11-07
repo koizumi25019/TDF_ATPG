@@ -17,12 +17,23 @@
 //戻り値：int 正常終了:SUCCESS(=0) , 異常終了:ERROR(=-1)
 //引数：なし
 //===================================================
+//目標故障リスト(tfl)の解放(fault_judge を通らない場合用)
+static void free_target_faults(void) {
+	UNDET_FAULT_LIST* next;
+	while (tfl != NULL) {
+		next = tfl->next;
+		free(tfl);
+		tfl = next;
+	}
+}
+
 int mttg_main(void) {
 	char txt_cmd[1024];
 	char cmd[2048];
 	int unsat_flag = OFF;
 	UNDET_FAULT_LIST *head;
 	int det_fault_clasp_num;
+	int clasp_st = SAT;		//直近の clasp の判定結果(SAT / UNSAT / ERROR=判定できなかった)
 
 	//テストパターンファイルオープン
 	snprintf(txt_cmd, sizeof(txt_cmd), "%stp_set.txt", folder_out);
@@ -130,10 +141,17 @@ int mttg_main(void) {
 		//	clasp ⇒ テストベクトル生成
 		//========================================================================
 		//Clasp
-		snprintf(cmd, sizeof(cmd), "clasp.exe  %smttg_pbo.txt --parallel-mode 24 >%sclasp_log_mttg.txt", folder_tmp, folder_tmp);
+		snprintf(cmd, sizeof(cmd), "clasp.exe  %smttg_pbo.txt --parallel-mode 24 --time-limit %d >%sclasp_log_mttg.txt", folder_tmp, fi[TIME].value, folder_tmp);
 		system(cmd);
-		//テストベクトル生成(tv.txt は中間生成フォルダーへ移される)
+		//解が得られたか確認(UNSAT・打ち切りで解なしの場合は、この目標故障ではテストを作れなかった)
 		snprintf(txt_cmd, sizeof(txt_cmd), "%sclasp_log_mttg.txt", folder_tmp);
+		clasp_st = read_clasp_status(txt_cmd);
+		if (clasp_st != SAT) {
+			free_target_faults();
+			det_fault_clasp_num = 0;
+			goto no_test_generated;
+		}
+		//テストベクトル生成(tv.txt は中間生成フォルダーへ移される)
 		if (generate_test_vector(txt_cmd) != SUCCESS) {
 			printf("【ERROR】:Generate Test Vector(mttg_main.c)\n");
 			return ERROR;
@@ -147,12 +165,6 @@ int mttg_main(void) {
 
 		//テスト集合に追加
 		make_test_set(fout_tp);
-
-		//論理シミュレーション
-		if (logic_sim() != SUCCESS) {
-			printf("【ERROR】:Logic Simulation(mttg_main.c)\n");
-			return ERROR;
-		}
 
 		//========================================================================
 		//	故障シミュレーション
@@ -169,9 +181,16 @@ int mttg_main(void) {
 			return ERROR;
 		}
 		
+no_test_generated:
 		//例外終了条件
 		if (det_fault_clasp_num == 0) {
-			unsat_flag = ON;
+			if (unsat_flag == ON) {
+				//1つの故障だけを狙っても検出できなかった → この故障は諦めて ufl から外す(同じ故障を永久に選び続けないため)
+				//電力制約なしでUNSATならテスト不能と言える。それ以外(UNKNOWNなど・電力制約ありのUNSAT)は未確定故障にする
+				printf("【WARNING】: %s could not be detected. Skip.\n", ufl->name);
+				ufl_free(ufl, NULL, (clasp_st == UNSAT && strcmp(fi[LOW_POWER].name, "OFF") == 0) ? UFL_UNTESTABLE : UFL_ABORT_MTTG);
+			}
+			else unsat_flag = ON;
 		}
 		else unsat_flag = OFF;
 

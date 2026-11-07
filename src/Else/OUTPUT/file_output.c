@@ -220,6 +220,19 @@ int file_output(clock_t time,int mode) {
 		}
 
 		fclose(fout_det);
+
+		//未確定故障ファイル(打ち切り時間内に SAT/UNSAT を判定できなかった故障と、その理由)
+		snprintf(txt_cmd, sizeof(txt_cmd), "%sunknown_fault.txt", folder_out);
+		if ((fout_undet = fopen(txt_cmd, "w")) == NULL) {
+			printf("【ERROR】:File open unknown_fault.txt(file_output.c)\n");
+			return ERROR;
+		}
+		for (node = abf; node != NULL; node = node->next) {
+			fprintf(fout_undet, "%s\t%s\t%s\n", node->name, (node->type == STR) ? "STR" : "STF",
+				(node->abort_reason == UFL_ABORT_NORMAL) ? "normal(電力制約なしで未判定)" :
+				(node->abort_reason == UFL_ABORT_POWER) ? "power(電力制約ありで未判定)" : "mttg(テスト生成で検出できず)");
+		}
+		fclose(fout_undet);
 	}
 
 	//目標故障選択ファイル

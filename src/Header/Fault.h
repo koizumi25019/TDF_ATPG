@@ -13,6 +13,7 @@ typedef struct Undet_fault_list{
 	int tfl_det_suffix;			       //目標故障時の故障検出回路の出力番号
 	int tfl_suf_fc;                    //suf_fcは目標故障ごとに変わるので格納
 	int tfl_fc_ppo;					   //故障回路に含まれるPPO数算出
+	int abort_reason;				   //未確定故障になった理由(UFL_ABORT_*。それ以外は0)
 	struct Undet_fault_list* next;	   //後続アドレス
 }UNDET_FAULT_LIST;
 

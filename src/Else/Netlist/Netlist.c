@@ -539,8 +539,6 @@ static void alloc_nl(void)
 		nl[i].ppo_flag = 0;
 		nl[i].open_pass = YES;
 		nl[i].fault_pass = NO;
-		nl[i].val_1t = X;
-		nl[i].val_2t = X;
 		nl[i].suf_1t = 0;
 		nl[i].suf_2t = 0;
 		nl[i].suf_fc = 0;

@@ -33,6 +33,7 @@ void print_info(FILE* fp) {
 	fprintf(fp, "// Number of Total Faults      :%d\n", (int)all_num);
 	fprintf(fp, "// Number of Untestable Faults :%d\n", (int)red_num);
 	fprintf(fp, "// Number of High Power Faults :%d\n", (int)hpfl_num);
+	fprintf(fp, "// Number of Aborted Faults    :%d\n", (int)abf_num);
 	fprintf(fp, "// Number of Detected Faults   :%d\n", (int)dfl_num);
 	fprintf(fp, "// Number of Undetected Faults :%d\n", (int)ufl_num);
 	fprintf(fp, "// Number of Test Vectors      :%d\n", tp_num);

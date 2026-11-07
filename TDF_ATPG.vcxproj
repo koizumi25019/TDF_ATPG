@@ -149,17 +149,6 @@
     <ClCompile Include="src\Else\Levelize\Level_stack.c" />
     <ClCompile Include="src\Else\Levelize\Qsort.c" />
     <ClCompile Include="src\Else\Levelize\set_literal_id.c" />
-    <ClCompile Include="src\Else\Logic\Gate\and.c" />
-    <ClCompile Include="src\Else\Logic\Gate\fout.c" />
-    <ClCompile Include="src\Else\Logic\Gate\inv.c" />
-    <ClCompile Include="src\Else\Logic\Gate\nand.c" />
-    <ClCompile Include="src\Else\Logic\Gate\nor.c" />
-    <ClCompile Include="src\Else\Logic\Gate\or.c" />
-    <ClCompile Include="src\Else\Logic\logic_sim.c" />
-    <ClCompile Include="src\Else\Logic\logic_sim_1time.c" />
-    <ClCompile Include="src\Else\Logic\logic_sim_2time.c" />
-    <ClCompile Include="src\Else\Logic\ppo_ppi_cat.c" />
-    <ClCompile Include="src\Else\Logic\test_v_read.c" />
     <ClCompile Include="src\Else\Netlist\make_ppo_ppi.c" />
     <ClCompile Include="src\Else\Netlist\Netlist.c" />
     <ClCompile Include="src\Else\OUTPUT\file_output.c" />

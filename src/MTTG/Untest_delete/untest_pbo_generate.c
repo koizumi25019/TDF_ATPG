@@ -201,27 +201,20 @@ void pbo_generate_fdetect_c(FILE *fp, UNDET_FAULT_LIST* node) {
 //=========================================================================
 void pbo_generate_power(FILE *fp) {
 	int i;
-	char* cons1 = (char*)NULL;
-
-	if ((cons1 = (char*)calloc(500000, sizeof(char))) == NULL) {
-		printf("【ERROR】:No calloc cons1(untest_pbo_generate.c)\n");
-		exit(1);
-	}
+	unsigned int v;
+	unsigned int first = suffix;	//この関数が割り当てる変数の先頭
 
 	for (i = 0; i < n_net; i++) {
 		if (nl[i].open_pass == NO) {
 			fprintf(fp, "1 x%d +1 x%d x%d +1 ~x%d ~x%d >=1;\n", suffix, nl[i].suf_1t, nl[i].suf_2t, nl[i].suf_1t, nl[i].suf_2t);
-			//WSA制約
-			sprintf(cons1, "%s-1 x%d ", cons1, suffix);
 			suffix++;
 		}
 	}
 
-	//WSA制約(WSA閾値)
-	sprintf(cons1, "%s>=-%d;\n", cons1, n_net *  fi[WSATH].value / 100);
+	//WSA制約(WSA閾値): 上で作った変数の合計が閾値以下。バッファに溜めず、そのままファイルへ書く
+	for (v = first; v < suffix; v++) {
+		fprintf(fp, "-1 x%u ", v);
+	}
+	fprintf(fp, ">=-%d;\n", n_net *  fi[WSATH].value / 100);
 	suffix++;
-
-	fprintf(fp, "%s", cons1);
-
-	free(cons1);
 }

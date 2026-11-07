@@ -31,6 +31,8 @@ int init_exturn(void) {
 	dfl_num = 0;			   //検出故障数
 	red_num = 0;		       //テスト不能故障数
 	hpfl_num = 0;			   //高消費電力故障数
+	abf = NULL;
+	abf_num = 0;			   //未確定故障数
 
 	//その他
 	tp_num = 0;					//テストベクトル数

@@ -40,12 +40,6 @@
     <Filter Include="ソース ファイル\MTTG\MiniPBO">
       <UniqueIdentifier>{e8948cbc-2e81-4a9d-9e85-1e92d18376d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Else\Logic">
-      <UniqueIdentifier>{7f187a96-7c3f-4b44-9cf3-4b7bb2b0bd59}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Else\Logic\Gate">
-      <UniqueIdentifier>{0e60ebd7-d38b-4fd9-91c7-9c70013d660b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Else\Fsim">
       <UniqueIdentifier>{335f12c5-27c0-4c0f-b273-14822dd5d151}</UniqueIdentifier>
     </Filter>
@@ -68,39 +62,6 @@
     </ClCompile>
     <ClCompile Include="src\Else\Levelize\set_literal_id.c">
       <Filter>ソース ファイル\Else\Levelize</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\Gate\and.c">
-      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\Gate\fout.c">
-      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\Gate\inv.c">
-      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\Gate\nand.c">
-      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\Gate\nor.c">
-      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\Gate\or.c">
-      <Filter>ソース ファイル\Else\Logic\Gate</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\logic_sim.c">
-      <Filter>ソース ファイル\Else\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\logic_sim_1time.c">
-      <Filter>ソース ファイル\Else\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\logic_sim_2time.c">
-      <Filter>ソース ファイル\Else\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\ppo_ppi_cat.c">
-      <Filter>ソース ファイル\Else\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Else\Logic\test_v_read.c">
-      <Filter>ソース ファイル\Else\Logic</Filter>
     </ClCompile>
     <ClCompile Include="src\Else\Netlist\make_ppo_ppi.c">
       <Filter>ソース ファイル\Else\Netlist</Filter>

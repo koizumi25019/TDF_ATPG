@@ -13,54 +13,53 @@
 
 
 //===================================================
+//関数名:read_clasp_status
+//機能:clasp の結果ファイルから、結果行("s ..." で始まる行)を探して判定する
+//     (固定の行番号を読むのではなく、行頭が "s " の行を探すので、出力行数が変わっても大丈夫)
+//戻り値：SAT(解あり) / UNSAT(解なし) / ERROR(打ち切り("s UNKNOWN")・結果行が無い・ファイルが読めない)
+//引数：結果ファイル名
+//===================================================
+int read_clasp_status(const char* path) {
+	char line[1024];
+	int result = ERROR;
+	FILE* fp = fopen(path, "r");
+
+	if (fp == NULL) {
+		printf("【ERROR】:File open %s(unsat_dicision.c)\n", path);
+		return ERROR;
+	}
+	while (fgets(line, sizeof(line), fp) != NULL) {
+		if (strncmp(line, "s ", 2) != 0) continue;
+		if (strncmp(line, "s UNSATISFIABLE", 15) == 0) result = UNSAT;
+		else if (strncmp(line, "s SATISFIABLE", 13) == 0 || strncmp(line, "s OPTIMUM FOUND", 15) == 0) result = SAT;
+		break;	//最初の結果行だけ見る(それ以外 "s UNKNOWN" など は ERROR のまま)
+	}
+	fclose(fp);
+
+	return result;
+}
+
+//===================================================
 //関数名:unsat_dicision
-//機能:SATかUNSATか判定
-//戻り値：int　SAT(=1),UNSAT(=0)
+//機能:SATかUNSATか判定し、UNSATなら未検出故障リストから外す
+//     UNSAT → テスト不能故障(mode=0) / 高消費電力故障(mode=2) として ufl から外す
+//     判定できない(UNKNOWN・打ち切り) → 未確定故障として ufl から外す(削除はしても、UNSATとは区別して記録する)
+//戻り値：int　SAT(=1),UNSAT(=0),ERROR(=-1:判定できなかった)。UNSAT・ERROR のときは node は既に解放済み
 //引数：mode(0:テスト不能故障削除時,2:高消費電力故障反転時)
 //===================================================
 int unsat_dicision(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode) {
-    int i;
-	char txt_cmd[300];
-	char str[50000];
-	char *d_str;
+	char txt_cmd[1024];
+	int result;
 
-	//領域確保
-	if ((d_str = (char*)calloc(n_pi * 2, sizeof(char))) == NULL) {
-		printf("【ERROR】:No calloc d_str(unsat_dicision.c)\n");
-		return ERROR;
+	snprintf(txt_cmd, sizeof(txt_cmd), "%sclasp_log_untest.txt", folder_tmp);
+	result = read_clasp_status(txt_cmd);
+
+	if (result == UNSAT) {
+		ufl_free(node, pre_node, (mode == 2) ? UFL_HIGH_POWER : UFL_UNTESTABLE);
+	}
+	else if (result == ERROR) {
+		ufl_free(node, pre_node, (mode == 2) ? UFL_ABORT_POWER : UFL_ABORT_NORMAL);
 	}
 
-	//clasp結果ファイルオープン
-	if (mode == 0||mode==2) {
-		sprintf(txt_cmd, "%sclasp_log_untest.txt", folder_tmp);
-		if ((fin_untest_pbo_result = fopen(txt_cmd, "r")) == NULL) {
-			printf("【ERROR】:File open clasp_log_untest.txt(unsat_dicision.c)\n");
-			exit(1);
-		}
-		for (i = 0; i < 4; i++) {
-			fgets(str, 50000, fin_untest_pbo_result);
-		}
-		fclose(fin_untest_pbo_result);
-	}
-
-	d_str = strtok(str, "\n");
-	if (strcmp(d_str, "s UNSATISFIABLE") != 0) {
-		return SAT;
-	}
-
-	//テスト不能故障削除時のUNSAT
-	if (mode == 0 || mode==2) {
-		if (mode == 0) {//テスト不能故障削除
-			//未検出故障リストから削除
-			ufl_free(node, pre_node, 0);
-		}
-		else if (mode == 2) {//高消費電力
-			//未検出故障リストから削除
-			ufl_free(node, pre_node, 1);
-		}
-
-		fclose(fin_untest_pbo_result);
-	}
-
-	return UNSAT;
+	return result;
 }

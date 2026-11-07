@@ -47,11 +47,20 @@ void mttg_pbo_generate_min(FILE* fp) {
 		fprintf(fp, "*\n");
 	}
 
-	fprintf(fp, "min: 1 x%d", size_pbo.val - size_pbo.s_constraint);
-	for (i = 2; i <= tfl_num; i++) {
-		fprintf(fp, " +1 x%d", size_pbo.val - size_pbo.s_constraint + i - 1);
+	if (tfl_num >= 2) {
+		//緩和変数(2個目以降の目標故障を検出しないとき1になる変数)の和を最小化する。
+		//緩和変数は検出回路の変数の直後に並ぶので、先頭は (val - s_constraint) の次。
+		//(val - s_constraint) 自身は最後の目標故障の検出変数なので、目的関数に入れない
+		fprintf(fp, "min:");
+		for (i = 1; i < tfl_num; i++) {
+			fprintf(fp, " +1 x%d", size_pbo.val - size_pbo.s_constraint + i);
+		}
+		fprintf(fp, ";\n");
 	}
-	fprintf(fp, ";\n");
+	else {
+		//目標故障が1個: 最小化したいものが無いのでダミー(従来どおり)
+		fprintf(fp, "min: 1 x%d;\n", size_pbo.val - size_pbo.s_constraint);
+	}
 
 }
 

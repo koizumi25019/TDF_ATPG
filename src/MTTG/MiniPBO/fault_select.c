@@ -22,6 +22,7 @@
 int fault_select(int unsat_flag) {
     int i, j;
     int index = 0;
+    int selected = 0;                          // 実際に選んだ故障数
     int select_faults_num;                     // 実際に選択された故障数
     int target_limit = fi[TARGET_LIMIT].value; // 故障選択上限値
     UNDET_FAULT_LIST* current;
@@ -105,7 +106,9 @@ int fault_select(int unsat_flag) {
     }
 
     // 故障を順に選択
-    for (index= 0; index < select_faults_num; index++) {
+    //同じ信号線のSTR/STFは片方しか選ばない(tf_flagで判定)ので、飛ばした分は数えない。
+    //そのため「何個選んだか」を selected で別に数え、足りなければ後ろの故障から補う
+    for (index = 0; index < ufl_num && selected < select_faults_num; index++) {
         if (rand_node[index]->netlist->tf_flag == FLAG_DOWN) {
             rand_node[index]->netlist->tf_flag = FLAG_UP; // 選択済みフラグを立てる
 
@@ -125,13 +128,13 @@ int fault_select(int unsat_flag) {
             tfl_node->netlist->tf_flag = rand_node[index]->netlist->tf_flag;
             tfl_node->next = head;
             head = tfl_node;
-
+            selected++;
         }
     }
 
     // tflリストを設定
     tfl = head;
-    tfl_num = index;
+    tfl_num = selected;
 
     // メモリの解放
     free(rand_node);

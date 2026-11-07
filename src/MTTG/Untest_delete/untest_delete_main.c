@@ -87,9 +87,8 @@ int untest_delete_main(void) {
 		snprintf(cmd, sizeof(cmd), "clasp.exe %suntest_pbo.txt --time-limit %d >%s", folder_tmp, fi[TIME].value, txt_cmd);
 		system(cmd);
 
-		//UNSATだった場合、未検出故障集合から削除
-		if ((sat_flag = (unsat_dicision(node, pre_node, 0))) == UNSAT) {
-			//UNSATの場合
+		//UNSAT(テスト不能)・判定できなかった(未確定)場合、未検出故障集合から外れる(node は解放済み)
+		if ((sat_flag = (unsat_dicision(node, pre_node, 0))) != SAT) {
 			if (pre_node == NULL)node = ufl;
 			else node = pre_node->next;
 			continue;
@@ -126,13 +125,13 @@ int untest_delete_main(void) {
 			system(cmd);
 
 			//UNSATだった場合、未検出故障集合から削除→高消費電力故障
-			if ((sat_flag = (unsat_dicision(node, pre_node, 2))) == UNSAT) {
-				//UNSATの場合
+			if ((sat_flag = (unsat_dicision(node, pre_node, 2))) != SAT) {
+				//UNSAT(高消費電力故障)・判定できなかった(未確定故障)場合は ufl から外れている(node は解放済み)
 				if (pre_node == NULL)node = ufl;
 				else node = pre_node->next;
 				continue;
 			}
-			else if (sat_flag == SAT) {
+			else {
 				//テストベクトル生成
 				if (generate_test_vector(txt_cmd) != SUCCESS) {
 					printf("【ERROR】:Generate Test Vector(untest_delete_main.c)\n");
@@ -147,12 +146,15 @@ int untest_delete_main(void) {
 					pre_node = node;
 					node = node->next;
 				}
-				else if (wsa_flag == ERROR || wsa_flag == UNSAT) {
-					printf("【ERROR】:Untest Check WSA(untest_delete_main.c)\n");
-					exit(1);
-				}
 				else if (wsa_flag == UNSAT) {
-					printf("【ERROR】:UNSAT : Untest Check WSA(untest_delete_main.c)\n");
+					//高消費電力だったテスト: untest_check_wsa が既にこの故障を高消費電力故障として
+					//ufl から外している(node は解放済み)ので、次の故障を取り直して続ける
+					if (pre_node == NULL)node = ufl;
+					else node = pre_node->next;
+					continue;
+				}
+				else {
+					printf("【ERROR】:Untest Check WSA(untest_delete_main.c)\n");
 					exit(1);
 				}
 			}

@@ -54,6 +54,15 @@
 #define     FOLDER          8
 
 //------------------------------------------------------------------------
+//未検出故障リストから外す理由(ufl_free の mode)
+//------------------------------------------------------------------------
+#define		UFL_UNTESTABLE		0	//テスト不能故障(UNSATと証明された)
+#define		UFL_HIGH_POWER		1	//高消費電力故障(電力制約なしならSAT、ありだとUNSAT)
+#define		UFL_ABORT_NORMAL	2	//未確定: 通常の制約(電力制約なし)で SAT/UNSAT を判定できなかった
+#define		UFL_ABORT_POWER		3	//未確定: 電力制約なしならSATだが、電力制約ありだと判定できなかった
+#define		UFL_ABORT_MTTG		4	//未確定: テスト生成(単一目標)で検出できなかった・判定できなかった
+
+//------------------------------------------------------------------------
 //故障のタイプ
 //------------------------------------------------------------------------
 #define		STF		    0		   //STF(1->0)
@@ -113,6 +122,8 @@ GLOBAL int red_num;					//テスト不能故障数
 GLOBAL UNDET_FAULT_LIST *red;		//テスト不能故障リスト
 GLOBAL int hpfl_num;				//高消費電力故障数
 GLOBAL UNDET_FAULT_LIST *hpfl;		//高消費電力故障リスト
+GLOBAL int abf_num;					//未確定故障数(clasp が打ち切り時間内に SAT/UNSAT を判定できなかった故障)
+GLOBAL UNDET_FAULT_LIST *abf;		//未確定故障リスト
 GLOBAL int tfl_num;					//目標故障数
 GLOBAL UNDET_FAULT_LIST* tfl;		//目標故障リスト
 
@@ -121,7 +132,6 @@ GLOBAL UNDET_FAULT_LIST* tfl;		//目標故障リスト
 //------------------------------------------------------------------------
 //その他							
 //------------------------------------------------------------------------
-#define		X	-1				//ドントケア
 GLOBAL unsigned int suffix;			//添え字
 GLOBAL STACK Open;					//オープンパス用のスタック
 GLOBAL unsigned int fc_ppo;			//PPO数初期化
@@ -150,28 +160,6 @@ int init_exturn(void);
 void make_ppo_ppi(void);
 //Netlist.c
 void read_nl(char *name);
-//and.c
-int and(NLIST *net, int flag);
-//fout.c
-int fout(NLIST *net, int flag);
-//inv.c
-int inv(NLIST *net, int flag);
-//nand.c
-int nand(NLIST *net, int flag);
-//nor.c
-int nor(NLIST *net, int flag);
-//or.c
-int or (NLIST *net, int flag);
-//logic_sim.c
-int logic_sim(void);
-//logic_sim_1time.c
-int logic_sim_1time(void);
-//logic_sim_2time.c
-int logic_sim_2time(void);
-//ppo_ppi_cat.c
-int ppo_ppi_cat(void);
-//test_v_read.c
-int test_v_read(void);
 //fault_judge.c
 int fault_judge(void);
 //file_output.c
@@ -211,6 +199,7 @@ void pbo_generate_fdetect_c(FILE *fp, UNDET_FAULT_LIST* node);
 void pbo_generate_power(FILE *fp);
 //unsat_dicision.c
 int unsat_dicision(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode);
+int read_clasp_status(const char* path);
 //untest_delete_main.c
 int untest_delete_main(void);
 //transition_fault_set.c

@@ -34,9 +34,9 @@ void ufl_remove(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node) {
 
 //========================================================
 //関数名:ufl_free
-//機能：テスト不能故障 または 高消費電力故障 を、未検出故障リストから専用のリストへ移す
+//機能：テスト不能故障・高消費電力故障・未確定故障を、未検出故障リストから専用のリストへ移す
 //戻り値：void
-//引数：削除したい故障，その1つ前の故障(先頭の場合は NULL)，テスト不能(mode=0)か高消費電力故障(mode=1)なのか
+//引数：削除したい故障，その1つ前の故障(先頭の場合は NULL)，移す理由(UFL_UNTESTABLE / UFL_HIGH_POWER / UFL_ABORT_*)
 //========================================================
 void ufl_free(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode) {
 	UNDET_FAULT_LIST*p_node;
@@ -52,16 +52,22 @@ void ufl_free(UNDET_FAULT_LIST* node, UNDET_FAULT_LIST* pre_node,int mode) {
 	p_node->type=node->type;
 	p_node->netlist = node->netlist;
 
-	//p_nodeをredまたはhpflの先頭に追加している
-	if (mode == 0) {//テスト不能
+	//p_nodeを移し先リストの先頭に追加している
+	if (mode == UFL_UNTESTABLE) {
 		p_node->next = red;
 		red = p_node;
 		red_num++;
 	}
-	else {//高消費電力(mode=1)
+	else if (mode == UFL_HIGH_POWER) {
 		p_node->next = hpfl;
 		hpfl = p_node;
 		hpfl_num++;
+	}
+	else {	//UFL_ABORT_*
+		p_node->abort_reason = mode;
+		p_node->next = abf;
+		abf = p_node;
+		abf_num++;
 	}
 
 	//未検出故障リストから削除(free)
