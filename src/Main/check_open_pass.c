@@ -27,7 +27,6 @@ int check_open_pass(void) {
 		p = open_pop();
 		if (p->open_pass == YES) {
 			p->open_pass = NO;	//オープンパスでない
-			p->fault_pass = YES;//オープンパスでない
 			if (p->n_out != 0 && p->ppo_flag != 1) {
 				for (i = 0; i < p->n_out; i++) { open_push(p->out[i]); }
 			}

@@ -53,6 +53,9 @@ int main(int argc, char *argv[]) {
 	}
 	printf("【SUCCESS】:Commandline\n");
 
+	//乱数の種(-rand ON のときの目標故障選択に使う)
+	rng_seed((unsigned int)fi[SEED].value);
+
 	//ネットリスト起動
 	read_nl(fi[CIRCUIT].name);
 	make_ppo_ppi();

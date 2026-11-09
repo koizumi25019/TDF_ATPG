@@ -52,6 +52,8 @@
 #define		TARGET_LIMIT	6
 #define		FAULT	        7
 #define     FOLDER          8
+#define		SEED			9	//乱数の種(省略時は実行時刻)
+#define		THREADS			10	//clasp の並列数(default:24)
 
 //------------------------------------------------------------------------
 //未検出故障リストから外す理由(ufl_free の mode)
@@ -169,6 +171,9 @@ void make_test_set(FILE *fp_ts);
 int generate_test_vector(const char* clasp_log);
 //pin_make.c
 int pin_make(void);
+//random.c
+void rng_seed(unsigned int seed);
+unsigned int rng_below(unsigned int n);
 //Que.c
 void enqueue(NLIST *data, int mode);
 NLIST* dequeue(void);

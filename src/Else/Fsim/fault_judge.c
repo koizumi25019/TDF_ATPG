@@ -85,7 +85,7 @@ int fault_judge(void) {
 				df_node->netlist = u_node->netlist;
 
 				//–Ú•WŒÌáİ’è
-				if (u_node->netlist->tf_flag == FLAG_UP) {
+				if (u_node->is_target) {
 					count++;//–Ú•WŒÌá‚ªŒŸo‚³‚ê‚½ê‡count‚·‚é
 				}
 

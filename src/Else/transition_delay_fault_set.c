@@ -58,6 +58,7 @@ int all_transition_delay_fault_set(void) {
 		case NAND:
 		case OR:
 		case NOR:
+		case EXOR:
 		case INV:
 		case BUF:
 		case FOUT:

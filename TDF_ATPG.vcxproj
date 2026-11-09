@@ -155,6 +155,7 @@
     <ClCompile Include="src\Else\OUTPUT\make_test_set.c" />
     <ClCompile Include="src\Else\OUTPUT\pin_make.c" />
     <ClCompile Include="src\Else\OUTPUT\standard_output.c" />
+    <ClCompile Include="src\Else\random.c" />
     <ClCompile Include="src\Else\Que.c" />
     <ClCompile Include="src\Else\reset_flag.c" />
     <ClCompile Include="src\Else\transition_delay_fault_set.c" />

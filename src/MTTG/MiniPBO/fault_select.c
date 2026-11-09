@@ -21,6 +21,7 @@
 
 int fault_select(int unsat_flag) {
     int i, j;
+    int do_shuffle = (strcmp(fi[RAND].name, "ON") == 0);   // -rand ON のときだけランダムに選ぶ。OFF はリストの先頭から順に選ぶ
     int index = 0;
     int selected = 0;                          // 実際に選んだ故障数
     int select_faults_num;                     // 実際に選択された故障数
@@ -45,12 +46,15 @@ int fault_select(int unsat_flag) {
             return ERROR;
         }
 
+        // 今回の目標故障の印(検出された目標故障を数えるため)を、この故障だけにする
+        for (current = ufl; current != NULL; current = current->next) current->is_target = 0;
+        ufl->is_target = 1;
+
         // 情報のコピー
         tfl_node->type = ufl->type;
         strcpy(tfl_node->name, ufl->name);
         tfl_node->netlist = ufl->netlist;
         tfl_node->node_id = ufl->node_id;
-        tfl_node->netlist->tf_flag = FLAG_UP;//目標故障選択フラグ
         tfl_node->next = NULL;
 
         tfl = tfl_node;
@@ -82,19 +86,19 @@ int fault_select(int unsat_flag) {
             return ERROR;
         }
         rand_node[i] = current;
-        rand_node[i]->netlist->tf_flag = FLAG_DOWN; // tf_flagを初期化
+        rand_node[i]->netlist->tf_flag = FLAG_DOWN; // tf_flagを初期化(同じ信号線のSTR/STFを重複して選ばないための印)
+        rand_node[i]->is_target = 0;
         current = current->next;
     }
 
-    // ランダム初期化
-    srand((unsigned int)time(NULL));
-
-    // 配列をシャッフル
-    for (i = ufl_num - 1; i > 0; i--) {
-        j = rand() % (i + 1);
-        UNDET_FAULT_LIST* temp = rand_node[i];
-        rand_node[i] = rand_node[j];
-        rand_node[j] = temp;
+    // 配列をシャッフル(-rand ON のとき。乱数は起動時に1回だけ種を設定した自前のもの)
+    if (do_shuffle) {
+        for (i = ufl_num - 1; i > 0; i--) {
+            j = (int)rng_below((unsigned int)(i + 1));
+            UNDET_FAULT_LIST* temp = rand_node[i];
+            rand_node[i] = rand_node[j];
+            rand_node[j] = temp;
+        }
     }
 
     // 故障選択上限の設定
@@ -111,6 +115,7 @@ int fault_select(int unsat_flag) {
     for (index = 0; index < ufl_num && selected < select_faults_num; index++) {
         if (rand_node[index]->netlist->tf_flag == FLAG_DOWN) {
             rand_node[index]->netlist->tf_flag = FLAG_UP; // 選択済みフラグを立てる
+            rand_node[index]->is_target = 1;              // 今回の目標故障の印
 
             // ノードをコピーして tfl リストに追加
             tfl_node = (UNDET_FAULT_LIST*)malloc(sizeof(UNDET_FAULT_LIST));
@@ -125,7 +130,6 @@ int fault_select(int unsat_flag) {
             strcpy(tfl_node->name, rand_node[index]->name);
             tfl_node->netlist = rand_node[index]->netlist;
             tfl_node->node_id = rand_node[index]->node_id;
-            tfl_node->netlist->tf_flag = rand_node[index]->netlist->tf_flag;
             tfl_node->next = head;
             head = tfl_node;
             selected++;

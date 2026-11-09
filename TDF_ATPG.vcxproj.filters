@@ -84,6 +84,9 @@
     <ClCompile Include="src\Else\cmdline.c">
       <Filter>ソース ファイル\Else</Filter>
     </ClCompile>
+    <ClCompile Include="src\Else\random.c">
+      <Filter>ソース ファイル\Else</Filter>
+    </ClCompile>
     <ClCompile Include="src\Else\Que.c">
       <Filter>ソース ファイル\Else</Filter>
     </ClCompile>

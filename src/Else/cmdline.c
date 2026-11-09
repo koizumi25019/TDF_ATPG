@@ -7,6 +7,7 @@
 #include<errno.h>
 #include<limits.h>
 #include<ctype.h>
+#include<time.h>
 
 //------------------------------------------------------------------------
 //自作インクルード
@@ -28,6 +29,8 @@ static void usage(void) {
 	printf("  -time <sec>            Solver打ち切り時間 0以上(default:10)\n");
 	printf("  -wsath <percent>       WSA閾値 0-100(default:20)\n");
 	printf("  -target_limit <n>      目標故障数の上限 0以上(0:制限なし)\n");
+	printf("  -seed <n>              乱数の種 0以上(省略時は実行時刻。同じ値なら同じ結果になる)\n");
+	printf("  -threads <n>           clasp の並列数 1-1024(default:24)\n");
 }
 
 //------------------------------------------------------------------------
@@ -35,7 +38,7 @@ static void usage(void) {
 //------------------------------------------------------------------------
 static int is_option_name(const char* s) {
 	static const char* names[] = { "-net", "-power", "-folder", "-untest_mode", "-rand",
-								   "-time", "-wsath", "-target_limit", "-fault" };
+								   "-time", "-wsath", "-target_limit", "-fault", "-seed", "-threads" };
 	int k;
 	for (k = 0; k < (int)(sizeof(names) / sizeof(names[0])); k++) {
 		if (strcmp(s, names[k]) == 0) return 1;
@@ -176,6 +179,16 @@ int cmdline(int argc, char *argv[])
 			if (parse_int(argv[i], val, 0, INT_MAX, &fi[TARGET_LIMIT].value) != SUCCESS) { usage(); return ERROR; }
 			fi[TARGET_LIMIT].flag = ON;
 		}
+		/* 乱数の種取得 */
+		else if (!strcmp(argv[i], "-seed")) {
+			if (parse_int(argv[i], val, 0, INT_MAX, &fi[SEED].value) != SUCCESS) { usage(); return ERROR; }
+			fi[SEED].flag = ON;
+		}
+		/* clasp の並列数取得 */
+		else if (!strcmp(argv[i], "-threads")) {
+			if (parse_int(argv[i], val, 1, 1024, &fi[THREADS].value) != SUCCESS) { usage(); return ERROR; }
+			fi[THREADS].flag = ON;
+		}
 		/* 故障ファイル取得 */
 		else if (!strcmp(argv[i], "-fault")) {
 			fi[FAULT].name = val;
@@ -213,6 +226,12 @@ int cmdline(int argc, char *argv[])
 	}
 	if (fi[WSATH].flag == OFF) {
 		fi[WSATH].value = 20;
+	}
+	if (fi[THREADS].flag == OFF) {
+		fi[THREADS].value = 24;
+	}
+	if (fi[SEED].flag == OFF) {
+		fi[SEED].value = (int)(time(NULL) & 0x7fffffff);	//ログに残るので、同じ結果を再現したいときは -seed で指定できる
 	}
 
 	return SUCCESS;

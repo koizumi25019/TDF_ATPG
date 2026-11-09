@@ -31,6 +31,10 @@ int check_wsa(const char* high_name, const char* low_name) {
 	snprintf(high_path, sizeof(high_path), "%s%s", folder_tmp, high_name);
 	snprintf(low_path, sizeof(low_path), "%s%s", folder_tmp, low_name);
 
+	//‘O‰ñ‚ÌŒ‹‰Ê‚ªc‚Á‚Ä‚¢‚é‚ÆAWSA.exe ‚ª¸”s‚µ‚½‚Æ‚«‚ÉŒÃ‚¢Œ‹‰Ê‚ğ“Ç‚ñ‚Å‚µ‚Ü‚¤‚Ì‚Åæ‚ÉÁ‚·
+	remove(high_path);
+	remove(low_path);
+
 	//WSA‰ğÍ
 	snprintf(cmd, sizeof(cmd), "WSA.exe -sc %s -tptx %s -mode 1 -rate %d -high %s -low %s -rep %s%s_wsa_rep.txt", fi[CIRCUIT].name, tv_path, fi[WSATH].value, high_path, low_path, folder_tmp, module_name);
 	system(cmd);
